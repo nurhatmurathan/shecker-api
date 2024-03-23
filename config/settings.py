@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'api.apps.ApiConfig',
     'corsheaders',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -71,6 +72,10 @@ TEMPLATES = [
         },
     },
 ]
+
+REST_FRAMEWORK = {
+
+}
 
 WSGI_APPLICATION = "config.wsgi.application"
 

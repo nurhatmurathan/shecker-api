@@ -24,7 +24,7 @@ class FridgeProductAdmin(admin.ModelAdmin):
         url = reverse("admin:api_product_change", args=[obj.product.id])
         return format_html('<a href="{}">{}</a>', url, obj.product)
 
-    product_link.short_description = 'Product'
+    product_link.short_description = 'product'
 
 
 class OrderProductAdmin(admin.ModelAdmin):
@@ -35,7 +35,7 @@ class OrderProductAdmin(admin.ModelAdmin):
         url = reverse("admin:api_fridgeproduct_change", args=[obj.fridge_product.id])
         return format_html('<a href="{}">{}</a>', url, obj.fridge_product)
 
-    fridge_product_link.short_description = 'Fridge Product'
+    fridge_product_link.short_description = 'Fridge product'
 
     def order_link(self, obj):
         url = reverse("admin:api_order_change", args=[obj.order.id])
