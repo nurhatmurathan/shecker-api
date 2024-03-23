@@ -7,7 +7,7 @@ from .models import *
 
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', "price")
-    list_display_links = ('id',)
+    list_display_links = ('id', "name")
 
 
 class FridgeProductAdmin(admin.ModelAdmin):
