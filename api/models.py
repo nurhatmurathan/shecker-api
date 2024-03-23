@@ -15,7 +15,7 @@ class Product(models.Model):
     image = models.URLField(null=True)
 
 
-class FridgeProducts(models.Model):
+class FridgeProduct(models.Model):
     fridge = models.ForeignKey(Fridge, on_delete=models.PROTECT)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.IntegerField()
@@ -32,8 +32,8 @@ class Order(models.Model):
     date = models.DateTimeField(auto_now_add=True)
 
 
-class OrderProducts(models.Model):
-    fridge_products = models.ForeignKey(FridgeProducts, on_delete=models.PROTECT)
+class OrderProduct(models.Model):
+    fridge_products = models.ForeignKey(FridgeProduct, on_delete=models.PROTECT)
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     amount = models.IntegerField()
 
