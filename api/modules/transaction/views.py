@@ -1,6 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 
 from api.models import OrderProduct
 from api.modules.product.serializers import ProductSerializer
@@ -59,6 +60,8 @@ class PaymentHandlingAPIView(APIView):
 
         sum_price = 0
         for order_product in order_products:
+            self._check_product_availability(order_product)
+
             total_price = order_product.fridge_product.product.price * order_product.amount
             sum_price += total_price
 
@@ -66,6 +69,11 @@ class PaymentHandlingAPIView(APIView):
             products.append(product_serializer)
 
         return sum_price, products
+
+    def _check_product_availability(self, order_product):
+        if order_product.fridge_product.quantity < order_product.amount:
+            raise ValidationError(f'Product {order_product.fridge_product.product.name}, '
+                                  f'only {order_product.fridge_product.quantity} in stock')
 
     def _handle_pay_command(self):
         pass
