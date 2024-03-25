@@ -70,3 +70,4 @@ class Transaction(models.Model):
         return str(self.prv_txn_id)
 
 
+
