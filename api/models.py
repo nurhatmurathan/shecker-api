@@ -46,6 +46,10 @@ class Order(models.Model):
     def __str__(self):
         return str(self.id)
 
+    def set_status(self, new_status):
+        self.status = new_status
+        self.save()
+
 
 class OrderProduct(models.Model):
     fridge_product = models.ForeignKey(FridgeProduct, on_delete=models.PROTECT)
@@ -60,13 +64,22 @@ class OrderProduct(models.Model):
 
 
 class Transaction(models.Model):
-    prv_txn_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    order = models.ForeignKey(Order, on_delete=models.PROTECT)
-    check_txn_id = models.UUIDField(null=True, blank=True)
-    pay_txn_id = models.UUIDField(null=True, blank=True)
+    order = models.OneToOneField(Order, on_delete=models.PROTECT)
+    check_txn_id = models.CharField(null=True, blank=True)
+    pay_txn_id = models.CharField(null=True, blank=True)
     txn_date = models.CharField(null=True, blank=True)
 
     def __str__(self):
-        return str(self.prv_txn_id)
+        return str(self.id)
+
+    def set_check_txn_id(self, check_txn_id):
+        self.check_txn_id = check_txn_id
+        self.save()
+
+    def set_pay_txn_id_and_date(self, pay_txn_id, txn_date):
+        self.pay_txn_id = pay_txn_id
+        self.txn_date = txn_date
+        self.save()
+
 
 

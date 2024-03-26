@@ -1,7 +1,7 @@
 from django.urls import path
 
-from api.modules.fridge.views import FridgeProductsListAPI
+from api.modules.transaction.views import *
 
 urlpatterns = [
-    path('payment', FridgeProductsListAPI.as_view(), name='fridge-products-list'),
+    path('payment', PaymentHandlingAPIView.as_view(), name='transaction-pay'),
 ]

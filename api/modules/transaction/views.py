@@ -2,21 +2,21 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
-from api.models import OrderProduct
-from api.modules.product.serializers import ProductSerializer
+from api.models import OrderProduct, Order
+from api.modules.order.serializers import OrderProductCoverKaspiSerializer
 
 
 class PaymentHandlingAPIView(APIView):
 
-    def get(self):
+    def get(self, request):
         response = {}
 
         try:
             response = self._handle_request()
         except Exception as exception:
             response = self._handle_exception(exception)
-        finally:
-            return Response(data=response, status=status.HTTP_200_OK)
+
+        return Response(data=response, status=status.HTTP_200_OK)
 
     def _handle_request(self):
         command_handlers = {
@@ -31,44 +31,66 @@ class PaymentHandlingAPIView(APIView):
     def _handle_check_command(self):
         request = self.request
 
-        order_id = request.query_params.get('order_id')
+        order_id = request.query_params.get('account')
         sum_from_bank = request.query_params.get('sum')
+        kaspi_txn_id = request.query_params.get('txn_id')
 
-        sum_from_our_db, product_list = self._get_total_price_and_product_list_of_order(order_id)
+        order_instance = Order.objects.select_related('transaction').get(id=order_id)
 
-        return sum_from_our_db != sum_from_bank if \
-            {
-                'txn_id': request.query_params.get('txn_id'),
+        sum_from_our_db, product_list_data = self._get_total_price_and_product_list_of_order(order_id)
+
+        if sum_from_our_db != float(sum_from_bank):
+            return {
+                'txn_id': kaspi_txn_id,
                 'result': 1,
                 'bin': None,
                 'comment': "Total price incorrect",
-            } else {
-                'txn_id': request.query_params.get('txn_id'),
-                'result': 0,
-                'bin': None,
-                'comment': "OK",
-                'fields': {
-                    'products': product_list,
-                }
             }
+
+        order_instance.set_status("CHECKED")
+        order_instance.transaction.set_check_txn_id(kaspi_txn_id)
+
+        return {
+            'txn_id': kaspi_txn_id,
+            'result': 0,
+            'bin': None,
+            'comment': "OK",
+            'fields': {
+                'products': product_list_data,
+            }
+        }
 
     def _get_total_price_and_product_list_of_order(self, order_id):
         order_products = OrderProduct.objects.filter(order_id=order_id)
-
-        products = []
-
         sum_price = 0
+
         for order_product in order_products:
             total_price = order_product.fridge_product.product.price * order_product.amount
             sum_price += total_price
 
-            product_serializer = ProductSerializer(order_product.fridge_product.product, many=False)
-            products.append(product_serializer)
-
-        return sum_price, products
+        return sum_price, OrderProductCoverKaspiSerializer(order_products, many=True).data
 
     def _handle_pay_command(self):
-        pass
+        request = self.request
+
+        order_id = request.query_params.get('account')
+        sum_from_bank = request.query_params.get('sum')
+        kaspi_txn_id = request.query_params.get('txn_id')
+        kaspi_txn_date = request.query_params.get('txn_date')
+
+        order_instance = Order.objects.select_related('transaction').get(id=order_id)
+
+        order_instance.set_status("PAYED")
+        order_instance.transaction.set_pay_txn_id_and_date(kaspi_txn_id, kaspi_txn_date)
+
+        return {
+            'txn_id': kaspi_txn_id,
+            'prv_txn_id': order_instance.transaction.pk,
+            'result': 0,
+            'sum': sum_from_bank,
+            'bin': None,
+            'comment': "Pay",
+        }
 
     def _handle_unknown_command(self):
         return {

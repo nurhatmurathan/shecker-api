@@ -45,8 +45,8 @@ class OrderProductAdmin(admin.ModelAdmin):
 
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('prv_txn_id', "order", "check_txn_id", "pay_txn_id", "txn_date")
-    list_display_links = ('prv_txn_id',)
+    list_display = ('id', "order", "check_txn_id", "pay_txn_id", "txn_date")
+    list_display_links = ('id',)
 
 
 admin.site.register(Fridge)
