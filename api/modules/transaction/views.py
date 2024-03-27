@@ -1,10 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.exceptions import ValidationError
 
-from api.models import OrderProduct
-from api.modules.product.serializers import ProductSerializer
+from api.modules.order import services
 
 
 class PaymentHandlingAPIView(APIView):
@@ -32,10 +30,11 @@ class PaymentHandlingAPIView(APIView):
     def _handle_check_command(self):
         request = self.request
 
-        order_id = request.query_params.get('order_id')
+        order_id = request.query_params.get('account')
         sum_from_bank = request.query_params.get('sum')
 
-        sum_from_our_db, product_list = self._get_total_price_and_product_list_of_order(order_id)
+        sum_from_our_db, product_list = \
+            services.get_total_price_and_product_list_of_order(order_id)
 
         return sum_from_our_db != sum_from_bank if \
             {
@@ -52,28 +51,6 @@ class PaymentHandlingAPIView(APIView):
                     'products': product_list,
                 }
             }
-
-    def _get_total_price_and_product_list_of_order(self, order_id):
-        order_products = OrderProduct.objects.filter(order_id=order_id)
-
-        products = []
-
-        sum_price = 0
-        for order_product in order_products:
-            self._check_product_availability(order_product)
-
-            total_price = order_product.fridge_product.product.price * order_product.amount
-            sum_price += total_price
-
-            product_serializer = ProductSerializer(order_product.fridge_product.product, many=False)
-            products.append(product_serializer)
-
-        return sum_price, products
-
-    def _check_product_availability(self, order_product):
-        if order_product.fridge_product.quantity < order_product.amount:
-            raise ValidationError(f'Product {order_product.fridge_product.product.name}, '
-                                  f'only {order_product.fridge_product.quantity} in stock')
 
     def _handle_pay_command(self):
         pass
