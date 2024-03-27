@@ -45,8 +45,14 @@ class OrderProductAdmin(admin.ModelAdmin):
 
 
 class TransactionAdmin(admin.ModelAdmin):
-    list_display = ('id', "order", "check_txn_id", "pay_txn_id", "txn_date")
+    list_display = ('id', "order_link", "check_txn_id", "pay_txn_id", "txn_date")
     list_display_links = ('id',)
+
+    def order_link(self, obj):
+        url = reverse("admin:api_order_change", args=[obj.order.id])
+        return format_html('<a href="{}">{}</a>', url, obj.order)
+
+    order_link.short_description = 'Order'
 
 
 admin.site.register(Fridge)

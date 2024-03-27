@@ -25,19 +25,24 @@ class PaymentHandlingAPIView(APIView):
         }
 
         command = self.request.query_params.get('command')
-        handler = command_handlers.get(command, self._handle_unknown_command)
-        return handler()
+        handler = command_handlers.get(command, 0)
 
-    def _handle_check_command(self):
+        if not handler:
+            return self._handle_unknown_command()
+
+
         request = self.request
-
         order_id = request.query_params.get('account')
         sum_from_bank = request.query_params.get('sum')
         kaspi_txn_id = request.query_params.get('txn_id')
-
+        kaspi_txn_date = request.query_params.get('txn_date')
         order_instance = Order.objects.select_related('transaction').get(id=order_id)
 
-        sum_from_our_db, product_list_data = self._get_total_price_and_product_list_of_order(order_id)
+        return handler(sum_from_bank, kaspi_txn_id, kaspi_txn_date, order_instance)
+
+    def _handle_check_command(self, sum_from_bank, kaspi_txn_id, kaspi_txn_date, order_instance):
+
+        sum_from_our_db, product_list_data = self._get_total_price_and_product_list_of_order(order_instance.id)
 
         if sum_from_our_db != float(sum_from_bank):
             return {
@@ -61,7 +66,8 @@ class PaymentHandlingAPIView(APIView):
         }
 
     def _get_total_price_and_product_list_of_order(self, order_id):
-        order_products = OrderProduct.objects.filter(order_id=order_id)
+        order_products = OrderProduct.objects.select_related('fridge_product__fridge',
+                                                             'fridge_product__product').filter(order_id=order_id)
         sum_price = 0
 
         for order_product in order_products:
@@ -70,15 +76,7 @@ class PaymentHandlingAPIView(APIView):
 
         return sum_price, OrderProductCoverKaspiSerializer(order_products, many=True).data
 
-    def _handle_pay_command(self):
-        request = self.request
-
-        order_id = request.query_params.get('account')
-        sum_from_bank = request.query_params.get('sum')
-        kaspi_txn_id = request.query_params.get('txn_id')
-        kaspi_txn_date = request.query_params.get('txn_date')
-
-        order_instance = Order.objects.select_related('transaction').get(id=order_id)
+    def _handle_pay_command(self, sum_from_bank, kaspi_txn_id, kaspi_txn_date, order_instance):
 
         order_instance.set_status("PAYED")
         order_instance.transaction.set_pay_txn_id_and_date(kaspi_txn_id, kaspi_txn_date)
@@ -87,7 +85,7 @@ class PaymentHandlingAPIView(APIView):
             'txn_id': kaspi_txn_id,
             'prv_txn_id': order_instance.transaction.pk,
             'result': 0,
-            'sum': sum_from_bank,
+            'sum': str(sum_from_bank)+".00",
             'bin': None,
             'comment': "Pay",
         }
