@@ -25,6 +25,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+APPEND_SLASH = True
 
 ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app", ".now.sh", "www.shecker-admin.com", "shecker-admin.com"]
 
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     'api.apps.ApiConfig',
     'corsheaders',
+    'storages',
     'rest_framework',
 ]
 
@@ -128,9 +130,22 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
-STATIC_URL = "static/"
+
+AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
+AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY")
+AWS_STORAGE_BUCKET_NAME = os.getenv("AWS_STORAGE_BUCKET_NAME")
+
+AWS_S3_CUSTOM_DOMAIN = f'https://{os.getenv("AWS_STORAGE_BUCKET_NAME")}.s3.amazonaws.com'
+AWS_S3_USE_SSL = True
+AWS_S3_VERIFY = True
+
+STATIC_URL = '/static/'
 STATICFILES_DIRS = os.path.join(BASE_DIR, 'static'),
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
+
+MEDIA_URL = f'{AWS_S3_CUSTOM_DOMAIN}/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field

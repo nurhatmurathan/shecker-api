@@ -9,4 +9,7 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'price', 'image', ]
 
 
-
+class ProductCoverSerializer(serializers.ModelSerializer):
+    class Meat:
+        model = Product
+        fields = ['id', 'name', 'price']

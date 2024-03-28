@@ -4,6 +4,8 @@ from rest_framework import status
 
 from api.models import OrderProduct, Order
 from api.modules.order.serializers import OrderProductCoverKaspiSerializer
+from api.modules.order import services
+
 
 
 class PaymentHandlingAPIView(APIView):
@@ -29,7 +31,6 @@ class PaymentHandlingAPIView(APIView):
 
         if not handler:
             return self._handle_unknown_command()
-
 
         request = self.request
         order_id = request.query_params.get('account')
@@ -89,6 +90,7 @@ class PaymentHandlingAPIView(APIView):
             'bin': None,
             'comment': "Pay",
         }
+
 
     def _handle_unknown_command(self):
         return {

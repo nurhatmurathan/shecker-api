@@ -1,5 +1,7 @@
 from django.urls import path
 
-urlpatterns = [
+from api.modules.order.views import OrderAPIView
 
+urlpatterns = [
+    path('create', OrderAPIView.as_view(), name='create-order')
 ]
