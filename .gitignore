@@ -52,3 +52,5 @@ poetry.lock
 
 # Ignore local settings
 **/local_settings.py
+
+ex.py
