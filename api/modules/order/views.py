@@ -6,6 +6,7 @@ from rest_framework import status
 from django.db import transaction
 
 from api.modules.order import services
+from api.modules.order.serializers import OrderSerializer
 
 
 class OrderAPIView(APIView):
@@ -15,14 +16,14 @@ class OrderAPIView(APIView):
 
         try:
             with transaction.atomic():
+
                 basket_products = self._get_basket_details(request.data)
-                order = services.create_order()
+                order = services.create_order_and_order_details(basket_products)
 
-                services.create_order_details(basket_products, order)
-
-                return Response(data={'message': 'OK'}, status=status.HTTP_200_OK)
+                order_serializer = OrderSerializer(order, many=False)
+                return Response(data=order_serializer.data, status=status.HTTP_200_OK)
         except Exception as exception:
-            return Response(data={'message': str(exception)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(data={'message': str(exception.args[0])}, status=status.HTTP_400_BAD_REQUEST)
 
     def _get_basket_details(self, data):
         if 'basket_products' not in data:
@@ -31,12 +32,12 @@ class OrderAPIView(APIView):
         product_list = data.get('basket_products', [])
 
         all_required_fields_present = all(
-            all(field in item for field in ['fridge_products_id', 'amount'])
+            all(field in item for field in ['fridge_product', 'amount'])
             for item in product_list
         )
 
         if not all_required_fields_present:
-            raise NotFound("Not all fields contains in form. Form must contains ['fridge_products_id', 'amount'] "
+            raise NotFound("Not all fields contains in form. Form must contains ['fridge_product', 'amount'] "
                            "fields.")
 
         return product_list

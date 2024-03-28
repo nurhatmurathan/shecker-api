@@ -1,19 +1,25 @@
 from api.models import OrderProduct, Order
 from api.modules.product import services
 from api.modules.order.serializers import OrderProductSerializer
-
+from api.modules.product import services
 
 def create_order():
     return Order.objects.create(status=Order.Status.PENDING)
 
 
-def create_order_details(basket_products, order):
+def create_order_and_order_details(basket_products: []):
+    order = create_order()
+
     for product in basket_products:
         product['order'] = order.id
 
         serializer = OrderProductSerializer(data=product, many=False)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        instance = serializer.save()
+
+        services.check_product_availability(instance)
+
+    return order
 
 
 def get_total_price_and_product_list_of_order(order_id):
