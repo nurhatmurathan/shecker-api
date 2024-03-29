@@ -43,7 +43,6 @@ def get_product_list_of_order(order: Order):
         services.check_product_availability(order_product)
         products.append(services.get_serialized_product(order_product))
 
-    order.set_status(Order.Status.CHECKED)
     return products
 
 
