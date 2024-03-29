@@ -6,7 +6,6 @@ from rest_framework import status
 from django.db import transaction
 
 from api.modules.order import services
-from api.modules.order.serializers import OrderSerializer
 
 
 class OrderAPIView(APIView):
@@ -30,7 +29,6 @@ class OrderAPIView(APIView):
             raise NotFound("Request is must contains basket information.")
 
         product_list = data.get('basket_products', [])
-
         all_required_fields_present = all(
             all(field in item for field in ['fridge_product', 'amount'])
             for item in product_list

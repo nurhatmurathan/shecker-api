@@ -12,6 +12,14 @@ def get_serialized_order(order: Order):
     return OrderSerializer(order, many=False)
 
 
+def get_order(order_id: int):
+    try:
+        return Order.objects.select_related('transaction')\
+            .get(id=order_id)
+    except Order.DoesNotExist:
+        return None
+
+
 def create_order_and_order_details(basket_products: []):
     order: Order = create_order()
 
@@ -27,16 +35,21 @@ def create_order_and_order_details(basket_products: []):
     return order
 
 
-def get_total_price_and_product_list_of_order(order_id: int):
-    order_products = OrderProduct.objects.filter(order_id=order_id)
-
-    price_sum: int = 0
+def get_product_list_of_order(order: Order):
+    order_products = order.orderproduct_set.all()
     products: list = []
 
     for order_product in order_products:
         services.check_product_availability(order_product)
-
-        price_sum += order_product.fridge_product.product.price * order_product.amount
         products.append(services.get_serialized_product(order_product))
 
-    return price_sum, products
+    order.set_status(Order.Status.CHECKED)
+    return products
+
+
+def get_total_price_of_order(order: Order):
+    return order.calculate_total_sum()
+
+
+def set_order_status(order: Order, status: Order.Status):
+    order.set_status(status)
