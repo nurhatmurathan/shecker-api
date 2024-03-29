@@ -46,6 +46,15 @@ class Order(models.Model):
     def __str__(self):
         return str(self.id)
 
+    def calculate_total_sum(self):
+        total_sum = 0
+        order_products = self.orderproduct_set.all()
+
+        for order_product in order_products:
+            total_sum += order_product.fridge_product.product.price * order_product.amount
+
+        return total_sum
+
 
 class OrderProduct(models.Model):
     fridge_product = models.ForeignKey(FridgeProduct, on_delete=models.PROTECT)

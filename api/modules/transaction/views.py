@@ -69,3 +69,5 @@ class PaymentHandlingAPIView(APIView):
             'comment': "Error during processing",
             'desc': str(exception)
         }
+
+

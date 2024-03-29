@@ -19,9 +19,16 @@ class OrderProductsCoverSerializer(serializers.ModelSerializer):
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    order_products = OrderProductsCoverSerializer(source='orderproduct_set', many=True)
+    account = serializers.SerializerMethodField()
+    sum = serializers.SerializerMethodField()
+    # order_products = OrderProductsCoverSerializer(source='orderproduct_set', many=True)
 
     class Meta:
         model = Order
-        fields = ['id', 'date', 'order_products']
+        fields = ['account', 'sum', 'date']
 
+    def get_account(self, obj):
+        return obj.id
+
+    def get_sum(self, obj):
+        return obj.calculate_total_sum()

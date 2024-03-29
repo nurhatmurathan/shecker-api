@@ -1,14 +1,19 @@
 from api.models import OrderProduct, Order
+
+from api.modules.order.serializers import OrderProductSerializer, OrderSerializer
 from api.modules.product import services
-from api.modules.order.serializers import OrderProductSerializer
-from api.modules.product import services
+
 
 def create_order():
     return Order.objects.create(status=Order.Status.PENDING)
 
 
+def get_serialized_order(order: Order):
+    return OrderSerializer(order, many=False)
+
+
 def create_order_and_order_details(basket_products: []):
-    order = create_order()
+    order: Order = create_order()
 
     for product in basket_products:
         product['order'] = order.id
@@ -22,14 +27,16 @@ def create_order_and_order_details(basket_products: []):
     return order
 
 
-def get_total_price_and_product_list_of_order(order_id):
+def get_total_price_and_product_list_of_order(order_id: int):
     order_products = OrderProduct.objects.filter(order_id=order_id)
 
-    sum_price = 0
+    price_sum: int = 0
+    products: list = []
+
     for order_product in order_products:
         services.check_product_availability(order_product)
 
-        total_price = order_product.fridge_product.product.price * order_product.amount
-        sum_price += total_price
+        price_sum += order_product.fridge_product.product.price * order_product.amount
+        products.append(services.get_serialized_product(order_product))
 
-    return sum_price, services.get_product_list_of_given_order(order_products)
+    return price_sum, products
