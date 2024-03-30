@@ -53,27 +53,27 @@ def set_order_status(order: Order, status: Order.Status):
 
 
 def handle_status_of_order(order: Order, command):
-    if (command == "check" and order.status == "PENDING") or \
-            (command == "pay" and order.status == "CHECKED"):
+    if (command == "check" and order.status == Order.Status.PENDING) or \
+            (command == "pay" and order.status == Order.Status.CHECKED):
         return {
             'result': 0,
             'comment': 'Ok'
         }
 
     order_status_error_msg = {
-        'PENDING': {
+        Order.Status.PENDING: {
             'result': 1,
             'comment': 'Order not checked'
         },
-        'CHECKED': {
+        Order.Status.CHECKED: {
             'result': 4,
             'comment': 'Payment in processing'
         },
-        'PAYED': {
+        Order.Status.PAYED: {
             'result': 3,
             'comment': 'Order already paid'
         },
-        'FAILED': {
+        Order.Status.FAILED: {
             'result': 2,
             'comment': 'Order canceled'
         }

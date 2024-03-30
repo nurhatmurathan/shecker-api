@@ -2,6 +2,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 
+from django.db import transaction as db_transaction
+
 from api.models import Order
 from api.modules.order import services as order_services
 from api.modules.transaction import services as transaction_services
@@ -13,7 +15,8 @@ class PaymentHandlingAPIView(APIView):
         response = {}
 
         try:
-            response = self._handle_request()
+            with db_transaction.atomic():
+                response = self._handle_request()
         except Exception as exception:
             response = self._handle_exception(exception.args[0])
         finally:
