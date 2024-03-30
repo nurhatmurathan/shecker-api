@@ -19,7 +19,7 @@ class OrderAPIView(APIView):
                 basket_products = self._get_basket_details(request.data)
                 order = services.create_order_and_order_details(basket_products)
 
-                order_serializer = services.get_serialized_order(order)
+                order_serializer = services.get_serialized_instance(order)
                 return Response(data=order_serializer.data, status=status.HTTP_200_OK)
         except Exception as exception:
             return Response(data={'message': str(exception.args[0])}, status=status.HTTP_400_BAD_REQUEST)

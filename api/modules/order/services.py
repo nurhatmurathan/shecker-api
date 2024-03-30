@@ -1,16 +1,22 @@
-from api.models import OrderProduct, Order
+from api.models import Order
 
-from api.modules.order.serializers import \
-    OrderProductSerializer, \
-    OrderProductCoverSerializer, OrderSerializer
+from api.modules.order.serializers import (
+    OrderProductSerializer,
+    OrderProductCoverSerializer,
+    OrderSerializer
+)
 from api.modules.product import services
 
 
-def create_order():
+def create_instance():
     return Order.objects.create(status=Order.Status.PENDING)
 
 
-def get_order(order_id: int):
+def get_serialized_instance(order: Order):
+    return OrderSerializer(order, many=False)
+
+
+def get_instance(order_id: int):
     try:
         return Order.objects.select_related('transaction') \
             .get(id=order_id)
@@ -19,7 +25,7 @@ def get_order(order_id: int):
 
 
 def create_order_and_order_details(basket_products: []):
-    order: Order = create_order()
+    order: Order = create_instance()
 
     for product in basket_products:
         product['order'] = order.id
@@ -46,5 +52,36 @@ def set_order_status(order: Order, status: Order.Status):
     order.set_status(status)
 
 
-def get_serialized_order(order: Order):
-    return OrderSerializer(order, many=False)
+def handle_status_of_order(order: Order, command):
+    if (command == "check" and order.status == "PENDING") or \
+            (command == "pay" and order.status == "CHECKED"):
+        return {
+            'result': 0,
+            'comment': 'Ok'
+        }
+
+    order_status_error_msg = {
+        'PENDING': {
+            'result': 1,
+            'comment': 'Order not checked'
+        },
+        'CHECKED': {
+            'result': 4,
+            'comment': 'Payment in processing'
+        },
+        'PAYED': {
+            'result': 3,
+            'comment': 'Order already paid'
+        },
+        'FAILED': {
+            'result': 2,
+            'comment': 'Order canceled'
+        }
+    }
+
+    other_error = {
+        'result': 5,
+        'comment': 'Other provider error'
+    }
+
+    return order_status_error_msg.get(order.status, other_error)
