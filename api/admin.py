@@ -10,6 +10,11 @@ class ProductAdmin(admin.ModelAdmin):
     list_display_links = ('id', "name")
 
 
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'status')
+    list_display_links = ('id',)
+
+
 class FridgeProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'fridge_link', "product_link", "quantity")
     list_display_links = ('id',)
@@ -58,6 +63,6 @@ class TransactionAdmin(admin.ModelAdmin):
 admin.site.register(Fridge)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(FridgeProduct, FridgeProductAdmin)
-admin.site.register(Order)
+admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderProduct, OrderProductAdmin)
 admin.site.register(Transaction, TransactionAdmin)

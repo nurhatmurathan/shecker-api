@@ -2,7 +2,7 @@ from api.models import OrderProduct, Order
 
 from api.modules.order.serializers import \
     OrderProductSerializer, \
-    OrderProductCoverSerializer
+    OrderProductCoverSerializer, OrderSerializer
 from api.modules.product import services
 
 
@@ -12,7 +12,7 @@ def create_order():
 
 def get_order(order_id: int):
     try:
-        return Order.objects.select_related('transaction')\
+        return Order.objects.select_related('transaction') \
             .get(id=order_id)
     except Order.DoesNotExist:
         return None
@@ -44,3 +44,7 @@ def get_total_price_of_order(order: Order):
 
 def set_order_status(order: Order, status: Order.Status):
     order.set_status(status)
+
+
+def get_serialized_order(order: Order):
+    return OrderSerializer(order, many=False)

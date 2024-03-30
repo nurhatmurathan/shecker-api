@@ -39,21 +39,19 @@ class PaymentHandlingAPIView(APIView):
         txn_date = request.query_params.get('txn_date', None)
 
         order = order_services.get_order(order_id)
+
+        if order is None:
+            return self._order_not_found(txn_id)
+
+        msg = self._handle_status_of_order(order, command)
+        if msg.get('result') != 0:
+            return transaction_services.generate_exception_json(txn_id, msg.get('result'), msg.get('comment'))
+
         return handler(sum_from_bank, txn_id, txn_date, order)
 
     def _handle_check_command(self, sum_from_bank, check_txn_id, txn_date, order):
-        print(sum_from_bank)
-        print(check_txn_id)
-        print(txn_date)
-        print(order)
-
-        if order is None:
-            return self._order_not_found(check_txn_id)
-
-        transaction = transaction_services.\
+        transaction = transaction_services. \
             get_or_create_transaction(order.id, check_txn_id)
-        if transaction.pay_txn_id is not None:
-            return self._order_already_paid(order, check_txn_id)
 
         if self._is_total_price_incorrect(order, sum_from_bank):
             return self._total_price_incorrect(order, check_txn_id)
@@ -71,7 +69,51 @@ class PaymentHandlingAPIView(APIView):
         }
 
     def _handle_pay_command(self, sum_from_bank, pay_txn_id, txn_date, order):
-        pass
+
+        order_services.set_order_status(order, Order.Status.PAYED)
+        order.transaction.set_pay_txn_id_and_date(pay_txn_id, txn_date)
+
+        return {
+            'txn_id': pay_txn_id,
+            'prv_txn_id': order.transaction.pk,
+            'result': 0,
+            'sum': str(sum_from_bank) + ".00",
+            'bin': None,
+            'comment': "Pay",
+        }
+
+    def _handle_status_of_order(self, order, command):
+        if (command == "check" and order.status == "PENDING") or \
+                (command == "pay" and order.status == "CHECKED"):
+            return {
+                'result': 0,
+                'comment': 'Ok'
+            }
+
+        order_status_error_msg = {
+            'PENDING': {
+                'result': 1,
+                'comment': 'Order not checked'
+            },
+            'CHECKED': {
+                'result': 4,
+                'comment': 'Payment in processing'
+            },
+            'PAYED': {
+                'result': 3,
+                'comment': 'Order already paid'
+            },
+            'FAILED': {
+                'result': 2,
+                'comment': 'Order canceled'
+            }
+        }
+        other_error = {
+            'result': 5,
+            'comment': 'Other provider error'
+        }
+
+        return order_status_error_msg.get(order.status, other_error)
 
     def _handle_unknown_command(self):
         return {
@@ -89,17 +131,12 @@ class PaymentHandlingAPIView(APIView):
         }
 
     def _order_not_found(self, txn_id):
-        return transaction_services.\
-            generate_exception_json(txn_id, 'The order not found.')
-
-    def _order_already_paid(self, order, txn_id):
-        order_services.set_order_status(order, Order.Status.FAILED)
-        return transaction_services.\
-            generate_exception_json(txn_id, 'The order has already been paid.')
+        return transaction_services. \
+            generate_exception_json(txn_id, 1, 'The order not found.')
 
     def _total_price_incorrect(self, order, txn_id):
         order_services.set_order_status(order, Order.Status.FAILED)
-        return transaction_services.generate_exception_json(txn_id, 'Total price incorrect.')
+        return transaction_services.generate_exception_json(txn_id, 5, 'Total price incorrect.')
 
     def _is_total_price_incorrect(self, order, sum_from_bank):
         sum_from_our_db = order_services.get_total_price_of_order(order)

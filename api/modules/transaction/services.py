@@ -11,10 +11,10 @@ def get_or_create_transaction(order_id: int,  check_txn_id: int):
         )
 
 
-def generate_exception_json(txn_id: int, comment: str):
+def generate_exception_json(txn_id: int, result: int, comment: str):
     return {
         'txn_id': txn_id,
-        'result': 1,
+        'result': result,
         'BIN': None,
         'comment': comment,
     }
