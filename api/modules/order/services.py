@@ -1,4 +1,4 @@
-from api.models import Order
+from api.models import Order, OrderProduct
 
 from api.modules.order.serializers import (
     OrderProductSerializer,
@@ -44,7 +44,7 @@ def reduce_quantity_of_product(order: Order):
 
     for order_product in order_products:
         product_services.check_product_availability(order_product)
-        product_services.reduce_quantity(order_product)
+        order_product.fridge_product.reduce_quantity(order_product.amount)
 
 
 def get_product_list_of_order(order: Order):
@@ -93,7 +93,6 @@ def handle_status_of_order(order: Order, command):
     }
 
     return order_status_error_msg.get(order.status, other_error)
-
 
 #
 # def test_services():
