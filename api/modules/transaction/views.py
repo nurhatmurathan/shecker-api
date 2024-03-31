@@ -68,7 +68,7 @@ class PaymentHandlingAPIView(APIView):
         return {
             'txn_id': transaction.check_txn_id,
             'result': 0,
-            'bin': settings.KASPI_BIN,
+            'bin': settings.BIN,
             'comment': "OK",
             'fields': {
                 'products': product_list,
@@ -85,7 +85,7 @@ class PaymentHandlingAPIView(APIView):
             'prv_txn_id': order.transaction.pk,
             'result': 0,
             'sum': float(sum_from_bank),
-            'bin': settings.KASPI_BIN,
+            'bin': settings.BIN,
             'comment': "Success",
         }
 

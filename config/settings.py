@@ -23,7 +23,7 @@ load_dotenv('.env')
 # SECURITY WARNING: keep the secret key used in production secret!
 # .envs
 SECRET_KEY = os.getenv("SECRET_KEY")
-KASPI_BIN= os.getenv("KASPI_BIN")
+BIN = os.getenv("KASPI_BIN")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
