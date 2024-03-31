@@ -1,4 +1,5 @@
 from api.models import Transaction
+from config import settings
 
 
 def create_instance(order_id,  check_txn_id):
@@ -16,10 +17,11 @@ def get_instance_by_order_id(order_id):
 
 
 def generate_exception_json(txn_id, result, comment):
+
     return {
         'txn_id': txn_id,
         'result': result,
-        'BIN': None,
+        'BIN': settings.BIN,
         'comment': comment,
     }
 

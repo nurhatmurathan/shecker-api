@@ -5,7 +5,7 @@ from api.modules.order.serializers import (
     OrderProductCoverSerializer,
     OrderSerializer
 )
-from api.modules.product import services
+from api.modules.product import services as product_services
 
 
 def create_instance():
@@ -34,9 +34,17 @@ def create_order_and_order_details(basket_products: []):
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
 
-        services.check_product_availability(instance)
+        product_services.check_product_availability(instance)
 
     return order
+
+
+def reduce_quantity_of_product(order: Order):
+    order_products = order.orderproduct_set.all()
+
+    for order_product in order_products:
+        product_services.check_product_availability(order_product)
+        product_services.reduce_quantity(order_product)
 
 
 def get_product_list_of_order(order: Order):
@@ -85,3 +93,8 @@ def handle_status_of_order(order: Order, command):
     }
 
     return order_status_error_msg.get(order.status, other_error)
+
+
+#
+# def test_services():
+#     product_services.test_services()

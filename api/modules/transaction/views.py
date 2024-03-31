@@ -7,7 +7,7 @@ from django.db import transaction as db_transaction
 from api.models import Order
 from api.modules.order import services as order_services
 from api.modules.transaction import services as transaction_services
-
+from config import settings
 
 class PaymentHandlingAPIView(APIView):
 
@@ -47,6 +47,7 @@ class PaymentHandlingAPIView(APIView):
 
         msg = order_services.handle_status_of_order(order, command)
         if msg.get('result') != 0:
+            order_services.set_order_status(order, Order.Status.FAILED)
             return transaction_services.generate_exception_json(
                 txn_id,
                 msg.get('result'),
@@ -66,7 +67,7 @@ class PaymentHandlingAPIView(APIView):
         return {
             'txn_id': transaction.check_txn_id,
             'result': 0,
-            'bin': None,
+            'bin': settings.BIN,
             'comment': "OK",
             'fields': {
                 'products': product_list,
@@ -74,6 +75,7 @@ class PaymentHandlingAPIView(APIView):
         }
 
     def _handle_pay_command(self, sum_from_bank, pay_txn_id, txn_date, order):
+        order_services.reduce_quantity_of_product(order)
         order_services.set_order_status(order, Order.Status.PAYED)
         transaction_services.set_pay_txn_id_and_date(order.transaction, pay_txn_id, txn_date)
 
@@ -81,9 +83,9 @@ class PaymentHandlingAPIView(APIView):
             'txn_id': order.transaction.pay_txn_id,
             'prv_txn_id': order.transaction.pk,
             'result': 0,
-            'sum': str(sum_from_bank) + ".00",
-            'bin': None,
-            'comment': "Pay",
+            'sum': float(sum_from_bank),
+            'bin': settings.BIN,
+            'comment': "Success",
         }
 
     def _handle_unknown_command(self):
@@ -96,7 +98,7 @@ class PaymentHandlingAPIView(APIView):
     def _handle_exception(self, exception):
         return {
             'txn_id': self.request.query_params.get('txn_id'),
-            'result': 1,
+            'result': 6,
             'comment': "Error during processing",
             'desc': str(exception)
         }

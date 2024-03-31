@@ -15,3 +15,12 @@ def check_product_availability(order_product: OrderProduct):
     if order_product.fridge_product.quantity < order_product.amount:
         raise ValidationError(f'Product {order_product.fridge_product.product.name}, '
                               f'only {order_product.fridge_product.quantity} in stock')
+
+
+def reduce_quantity(order_product: OrderProduct):
+    order_product.fridge_product.quantity -= order_product.amount
+    order_product.fridge_product.save()
+
+
+# def test_services():
+#     raise ValidationError("Okay")
