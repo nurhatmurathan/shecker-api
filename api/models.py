@@ -22,7 +22,7 @@ class Product(models.Model):
 class FridgeProduct(models.Model):
     fridge = models.ForeignKey(Fridge, on_delete=models.PROTECT)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
-    quantity = models.IntegerField()
+    quantity = models.PositiveIntegerField(default=0)
 
     class Meta:
         unique_together = [['fridge', 'product']]
@@ -65,7 +65,7 @@ class Order(models.Model):
 class OrderProduct(models.Model):
     fridge_product = models.ForeignKey(FridgeProduct, on_delete=models.PROTECT)
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
-    amount = models.IntegerField()
+    amount = models.PositiveIntegerField()
 
     class Meta:
         unique_together = [['fridge_product', 'order']]
