@@ -1,4 +1,5 @@
 from api.models import Transaction
+from config.settings import KASPI_BIN
 
 
 def create_instance(order_id,  check_txn_id):
@@ -19,7 +20,7 @@ def generate_exception_json(txn_id, result, comment):
     return {
         'txn_id': txn_id,
         'result': result,
-        'BIN': None,
+        'BIN': KASPI_BIN,
         'comment': comment,
     }
 

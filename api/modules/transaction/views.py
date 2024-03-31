@@ -8,6 +8,7 @@ from api.models import Order
 from api.modules.order import services as order_services
 from api.modules.order.services import subtract_order_product_amount_from_fridge_product
 from api.modules.transaction import services as transaction_services
+from config.settings import KASPI_BIN
 
 
 class PaymentHandlingAPIView(APIView):
@@ -67,7 +68,7 @@ class PaymentHandlingAPIView(APIView):
         return {
             'txn_id': transaction.check_txn_id,
             'result': 0,
-            'bin': None,
+            'bin': KASPI_BIN,
             'comment': "OK",
             'fields': {
                 'products': product_list,
@@ -85,7 +86,7 @@ class PaymentHandlingAPIView(APIView):
             'prv_txn_id': order.transaction.pk,
             'result': 0,
             'sum': str(sum_from_bank) + ".00",
-            'bin': None,
+            'bin': KASPI_BIN,
             'comment': "Pay",
         }
 
