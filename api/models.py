@@ -30,6 +30,10 @@ class FridgeProduct(models.Model):
     def __str__(self):
         return str(self.id)
 
+    def subtraction_quantity(self, amount):
+        self.quantity -= amount
+        self.save()
+
 
 class Order(models.Model):
     class Status(models.TextChoices):

@@ -1,4 +1,4 @@
-from api.models import Order
+from api.models import Order, OrderProduct
 
 from api.modules.order.serializers import (
     OrderProductSerializer,
@@ -50,6 +50,14 @@ def get_total_price_of_order(order: Order):
 
 def set_order_status(order: Order, status: Order.Status):
     order.set_status(status)
+
+
+def subtract_order_product_amount_from_fridge_product(order: Order):
+    order_products = OrderProduct.objects.prefetch_related('fridge_product').filter(order=order)
+
+    for order_product in order_products:
+        amount = order_product.amount
+        order_product.fridge_product.subtraction_quantity(amount)
 
 
 def handle_status_of_order(order: Order, command):

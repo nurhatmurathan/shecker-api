@@ -6,6 +6,7 @@ from django.db import transaction as db_transaction
 
 from api.models import Order
 from api.modules.order import services as order_services
+from api.modules.order.services import subtract_order_product_amount_from_fridge_product
 from api.modules.transaction import services as transaction_services
 
 
@@ -76,6 +77,8 @@ class PaymentHandlingAPIView(APIView):
     def _handle_pay_command(self, sum_from_bank, pay_txn_id, txn_date, order):
         order_services.set_order_status(order, Order.Status.PAYED)
         transaction_services.set_pay_txn_id_and_date(order.transaction, pay_txn_id, txn_date)
+
+        subtract_order_product_amount_from_fridge_product(order)
 
         return {
             'txn_id': order.transaction.pay_txn_id,
