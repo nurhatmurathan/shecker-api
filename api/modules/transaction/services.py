@@ -21,7 +21,7 @@ def generate_exception_json(txn_id, result, comment):
     return {
         'txn_id': txn_id,
         'result': result,
-        'BIN': settings.BIN,
+        'BIN': settings.KASPI_BIN,
         'comment': comment,
     }
 
