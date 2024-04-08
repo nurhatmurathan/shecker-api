@@ -60,9 +60,6 @@ class PaymentHandlingAPIView(APIView):
     def _handle_check_command(self, sum_from_bank, check_txn_id, txn_date, order):
         transaction = transaction_services.create_instance(order.id, check_txn_id)
 
-        if self._is_total_price_incorrect(order, sum_from_bank):
-            return self._total_price_incorrect(order, check_txn_id)
-
         product_list = order_services.get_product_list_of_order(order)
         order_services.set_order_status(order, Order.Status.CHECKED)
         return {
@@ -76,6 +73,9 @@ class PaymentHandlingAPIView(APIView):
         }
 
     def _handle_pay_command(self, sum_from_bank, pay_txn_id, txn_date, order):
+        if self._is_total_price_incorrect(order, sum_from_bank):
+            return self._total_price_incorrect(order, pay_txn_id)
+
         order_services.reduce_quantity_of_product(order)
         order_services.set_order_status(order, Order.Status.PAYED)
         transaction_services.set_pay_txn_id_and_date(order.transaction, pay_txn_id, txn_date)
