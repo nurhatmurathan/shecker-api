@@ -26,7 +26,7 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 BIN = os.getenv("BIN")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 APPEND_SLASH = True
 
 ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app", ".now.sh", "www.shecker-admin.com", "shecker-admin.com"]

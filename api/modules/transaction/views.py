@@ -114,4 +114,4 @@ class PaymentHandlingAPIView(APIView):
 
     def _is_total_price_incorrect(self, order, sum_from_bank):
         sum_from_our_db = order_services.get_total_price_of_order(order)
-        return sum_from_our_db != int(sum_from_bank)
+        return sum_from_our_db != float(sum_from_bank)
