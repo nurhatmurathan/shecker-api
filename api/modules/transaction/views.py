@@ -73,12 +73,13 @@ class PaymentHandlingAPIView(APIView):
         }
 
     def _handle_pay_command(self, sum_from_bank, pay_txn_id, txn_date, order):
+        transaction_services.set_pay_txn_id_and_date(order.transaction, pay_txn_id, txn_date)
+
         if self._is_total_price_incorrect(order, sum_from_bank):
             return self._total_price_incorrect(order, pay_txn_id)
 
         order_services.reduce_quantity_of_product(order)
         order_services.set_order_status(order, Order.Status.PAYED)
-        transaction_services.set_pay_txn_id_and_date(order.transaction, pay_txn_id, txn_date)
 
         return {
             'txn_id': order.transaction.pay_txn_id,
