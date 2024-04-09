@@ -2,11 +2,19 @@ from api.models import Transaction
 from config import settings
 
 
-def create_instance(order_id,  check_txn_id):
+def get_or_create_instance(order_id,  check_txn_id):
+    transaction = Transaction.objects.get(order_id=order_id)
+
+    if transaction:
+        return transaction
+
     return Transaction.objects.create(
         order_id=order_id,
         check_txn_id=check_txn_id
     )
+
+
+
 
 
 def get_instance_by_order_id(order_id):

@@ -58,7 +58,7 @@ class PaymentHandlingAPIView(APIView):
         return handler(sum_from_bank, txn_id, txn_date, order)
 
     def _handle_check_command(self, sum_from_bank, check_txn_id, txn_date, order):
-        transaction = transaction_services.create_instance(order.id, check_txn_id)
+        transaction = transaction_services.get_or_create_instance(order.id, check_txn_id)
 
         product_list = order_services.get_product_list_of_order(order)
         total_price = order_services.get_total_price_of_order(order)

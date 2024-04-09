@@ -61,7 +61,7 @@ def set_order_status(order: Order, status: Order.Status):
 
 
 def handle_status_of_order(order: Order, command):
-    if (command == "check" and order.status == Order.Status.PENDING) or \
+    if (command == "check" and order.status in (Order.Status.PENDING, Order.Status.CHECKED)) or \
             (command == "pay" and order.status == Order.Status.CHECKED):
         return {
             'result': 0,
