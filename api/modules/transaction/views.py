@@ -64,6 +64,7 @@ class PaymentHandlingAPIView(APIView):
         order_services.set_order_status(order, Order.Status.CHECKED)
         return {
             'txn_id': transaction.check_txn_id,
+            'sum': float(sum_from_bank),
             'result': 0,
             'bin': settings.BIN,
             'comment': "OK",
