@@ -61,10 +61,11 @@ class PaymentHandlingAPIView(APIView):
         transaction = transaction_services.create_instance(order.id, check_txn_id)
 
         product_list = order_services.get_product_list_of_order(order)
+        total_price = order_services.get_total_price_of_order(order)
         order_services.set_order_status(order, Order.Status.CHECKED)
         return {
             'txn_id': transaction.check_txn_id,
-            'sum': float(sum_from_bank),
+            'sum': str(total_price) + ".00",
             'result': 0,
             'bin': settings.BIN,
             'comment': "OK",
