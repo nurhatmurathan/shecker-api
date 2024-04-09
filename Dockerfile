@@ -13,6 +13,5 @@ RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
 # Copy the rest of the working directory contents into the container at /app
 COPY . .
-
 # Run app.py when the container launches
 ENTRYPOINT ["python", "manage.py", "runserver", "--noreload"]
