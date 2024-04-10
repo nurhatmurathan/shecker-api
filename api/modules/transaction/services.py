@@ -3,15 +3,23 @@ from config import settings
 
 
 def get_or_create_instance(order_id,  check_txn_id):
-    transaction = Transaction.objects.get(order_id=order_id)
 
-    if transaction:
-        return transaction
+    try:
 
-    return Transaction.objects.create(
-        order_id=order_id,
-        check_txn_id=check_txn_id
-    )
+        transaction = Transaction.objects.get(order_id=order_id)
+
+        if transaction:
+            return transaction
+
+        return Transaction.objects.create(
+            order_id=order_id,
+            check_txn_id=check_txn_id
+        )
+    except:
+        return Transaction.objects.create(
+            order_id=order_id,
+            check_txn_id=check_txn_id
+        )
 
 
 
