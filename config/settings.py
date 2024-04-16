@@ -27,6 +27,9 @@ BIN = os.getenv("BIN")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+if os.getenv("IS_FROM_CONTAINER"):
+    DEBUG = False
+
 APPEND_SLASH = True
 
 ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app", ".now.sh", "www.shecker-admin.com", "shecker-admin.com", "*"]
