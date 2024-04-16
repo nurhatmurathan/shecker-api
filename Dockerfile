@@ -1,19 +1,29 @@
 # Use an official Python runtime as a parent image
-FROM python:3.8-slim
+FROM python:3.11-alpine
 
-# Set environment varibles
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Set the working directory to /app
+WORKDIR /app
 
-# Set work directory
-WORKDIR /code
+# Install system dependencies
+RUN apk add --no-cache gcc musl-dev linux-headers
 
-# Install dependencies
-COPY Pipfile Pipfile.lock /code/
-RUN pip install pipenv && pipenv install --system
+# copy the requirements file used for dependencies
+COPY requirements.txt .
 
-# Copy project
-COPY . /code/
+# Install any needed packages specified in requirements.txt
+RUN pip install --trusted-host pypi.org --no-cache-dir -r requirements.txt
 
-# Run the application
+# Copy the rest of the working directory contents into the container at /app
+COPY . .
+
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+# Make port 8000 available to the world outside this container
+EXPOSE 8000
+
+# Define environment variable
+ENV PORT 8000
+
+# Run gunicorn when the container launches
 CMD gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
