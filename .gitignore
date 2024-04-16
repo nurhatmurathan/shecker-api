@@ -49,6 +49,7 @@ poetry.lock
 
 # Ignore migrations
 **/migrations/
+*/staticfiles_build/
 
 # Ignore local settings
 **/local_settings.py
