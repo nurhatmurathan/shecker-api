@@ -29,7 +29,7 @@ BIN = os.getenv("BIN")
 DEBUG = True
 APPEND_SLASH = True
 
-ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app", ".now.sh", "www.shecker-admin.com", "shecker-admin.com"]
+ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app", ".now.sh", "www.shecker-admin.com", "shecker-admin.com", "*"]
 
 # Application definition
 
