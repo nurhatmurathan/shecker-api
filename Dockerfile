@@ -1,17 +1,19 @@
-FROM python:3.11-alpine
+# Use an official Python runtime as a parent image
+FROM python:3.8-slim
 
-# .env.prod variables
+# Set environment varibles
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Set the working directory to /app
-WORKDIR /app
+# Set work directory
+WORKDIR /code
 
-# copy the requirements file used for dependencies
-COPY requirements.txt .
+# Install dependencies
+COPY Pipfile Pipfile.lock /code/
+RUN pip install pipenv && pipenv install --system
 
-# Install any needed packages specified in requirements.txt
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
+# Copy project
+COPY . /code/
 
-# Copy the rest of the working directory contents into the container at /app
-COPY . .
-# Run app.py when the container launches
-ENTRYPOINT ["python", "manage.py", "runserver", "--noreload"]
+# Run the application
+CMD gunicorn your_project_name.wsgi:application --bind 0.0.0.0:$PORT
