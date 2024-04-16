@@ -27,7 +27,7 @@ BIN = os.getenv("BIN")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-if os.getenv("IS_FROM_CONTAINER"):
+if os.getenv("DEBUG"):
     DEBUG = False
 
 APPEND_SLASH = True
