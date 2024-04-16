@@ -16,4 +16,4 @@ RUN pip install pipenv && pipenv install --system
 COPY . /code/
 
 # Run the application
-CMD gunicorn your_project_name.wsgi:application --bind 0.0.0.0:$PORT
+CMD gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
