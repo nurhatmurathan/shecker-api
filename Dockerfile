@@ -7,11 +7,11 @@ ENV PROD=True \
 
 COPY requirements.txt .
 
-RUN pip install --trusted-host pypi.python.org -r requirements.txt
-RUN pip install gunicorn
-RUN python manage.py collectstatic --noinput
+RUN pip install --trusted-host pypi.python.org -r requirements.txt && pip install gunicorn
 
 COPY . .
+
+RUN python manage.py collectstatic --noinput
 
 EXPOSE 8000
 
