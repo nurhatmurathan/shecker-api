@@ -16,7 +16,9 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv('.env')
+if not os.getenv("PROD"):
+    load_dotenv('.env.local')
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
@@ -26,10 +28,13 @@ SECRET_KEY = os.getenv("SECRET_KEY")
 BIN = os.getenv("BIN")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
+if os.getenv("DEBUG"):
+    DEBUG = False
+
 APPEND_SLASH = True
 
-ALLOWED_HOSTS = ["127.0.0.1", ".vercel.app", ".now.sh", "www.shecker-admin.com", "shecker-admin.com"]
+ALLOWED_HOSTS = ["127.0.0.1", "www.shecker-admin.com", "shecker-admin.com", "*"]
 
 # Application definition
 

@@ -1,11 +1,14 @@
 from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
+from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
 
 from django.db import transaction
 
+from api.models import Order
 from api.modules.order import services
+from api.modules.order.serializers import OrderDetailSerializer
 
 
 class OrderAPIView(APIView):
@@ -44,3 +47,9 @@ class OrderAPIView(APIView):
                            "fields.")
 
         return product_list
+
+
+class OrderDetailView(generics.RetrieveAPIView):
+    queryset = Order.objects.all()
+    serializer_class = OrderDetailSerializer
+    lookup_field = 'pk'
