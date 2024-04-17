@@ -44,16 +44,16 @@ class PaymentHandlingAPIView(APIView):
 
         order = order_services.get_instance(order_id)
         if order is None:
-            return self._order_not_found(txn_id)
+            response = order_services.handle_order_not_found_exception()
+            return self._generate_exception_json(order, response, txn_id)
 
-        msg = order_services.handle_status_of_order(order, command)
-        if msg.get('result') != 0:
-            order_services.set_order_status(order, Order.Status.FAILED)
-            return transaction_services.generate_exception_json(
-                txn_id,
-                msg.get('result'),
-                msg.get('comment')
-            )
+        if order_services.is_order_expired(order):
+            response = order_services.handle_order_expired_exception()
+            return self._generate_exception_json(order, response, txn_id)
+
+        response = order_services.handle_status_of_order(order, command)
+        if response.get('result') != 0:
+            return self._generate_exception_json(order, response, txn_id)
 
         return handler(sum_from_bank, txn_id, txn_date, order)
 
@@ -77,11 +77,12 @@ class PaymentHandlingAPIView(APIView):
     def _handle_pay_command(self, sum_from_bank, pay_txn_id, txn_date, order):
         transaction_services.set_pay_txn_id_and_date(order.transaction, pay_txn_id, txn_date)
 
-        if self._is_total_price_incorrect(order, sum_from_bank):
-            return self._total_price_incorrect(order, pay_txn_id)
+        if order_services.is_total_price_incorrect(order, sum_from_bank):
+            response = order_services.handle_incorrect_total_price_exception(order)
+            return self._generate_exception_json(order, response, pay_txn_id)
 
         order_services.reduce_quantity_of_product(order)
-        order_services.set_order_status(order, Order.Status.PAYED)
+        order_services.set_order_status(order, Order.Status.SUCCESS)
 
         return {
             'txn_id': order.transaction.pay_txn_id,
@@ -102,19 +103,17 @@ class PaymentHandlingAPIView(APIView):
     def _handle_exception(self, exception):
         return {
             'txn_id': self.request.query_params.get('txn_id'),
-            'result': 6,
+            'result': 5,
             'comment': "Error during processing",
             'desc': str(exception)
         }
 
-    def _order_not_found(self, txn_id):
-        return transaction_services. \
-            generate_exception_json(txn_id, 1, 'The order not found.')
+    def _generate_exception_json(self, order, response, txn_id):
+        if order:
+            order_services.set_order_status(order, Order.Status.FAILED)
 
-    def _total_price_incorrect(self, order, txn_id):
-        order_services.set_order_status(order, Order.Status.FAILED)
-        return transaction_services.generate_exception_json(txn_id, 5, 'Total price incorrect.')
-
-    def _is_total_price_incorrect(self, order, sum_from_bank):
-        sum_from_our_db = order_services.get_total_price_of_order(order)
-        return sum_from_our_db != float(sum_from_bank)
+        return transaction_services.generate_exception_json(
+            txn_id,
+            response.get('result'),
+            response.get('comment')
+        )

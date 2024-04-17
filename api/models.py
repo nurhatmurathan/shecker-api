@@ -1,5 +1,5 @@
 from django.db import models
-
+from datetime import datetime, timedelta
 
 class Fridge(models.Model):
     account = models.CharField(primary_key=True)
@@ -39,7 +39,7 @@ class Order(models.Model):
     class Status(models.TextChoices):
         PENDING = "PENDING", "pending"
         CHECKED = "CHECKED", "checked"
-        PAYED = "PAYED", "payed"
+        SUCCESS = "SUCCESS", "success"
         FAILED = "FAILED", "failed"
 
     status = models.CharField(max_length=10, choices=Status.choices, default=Status.PENDING)
@@ -60,6 +60,12 @@ class Order(models.Model):
             total_sum += order_product.fridge_product.product.price * order_product.amount
 
         return total_sum
+
+    def is_order_expired(self) -> bool:
+        current_date = datetime.now()
+        time_difference = current_date - self.date
+
+        return time_difference > timedelta(minutes=1)
 
 
 class OrderProduct(models.Model):

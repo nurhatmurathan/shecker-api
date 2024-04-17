@@ -9,7 +9,7 @@ from api.modules.product import services as product_services
 
 
 def create_instance():
-    return Order.objects.create(status=Order.Status.PENDING)
+    return Order.objects.create(status=Order.Status.PENDING, date=)
 
 
 def get_serialized_instance(order: Order):
@@ -77,7 +77,7 @@ def handle_status_of_order(order: Order, command):
             'result': 4,
             'comment': 'Payment in processing'
         },
-        Order.Status.PAYED: {
+        Order.Status.SUCCESS: {
             'result': 3,
             'comment': 'Order already paid'
         },
@@ -94,6 +94,32 @@ def handle_status_of_order(order: Order, command):
 
     return order_status_error_msg.get(order.status, other_error)
 
-#
-# def test_services():
-#     product_services.test_services()
+
+def handle_order_not_found_exception():
+    return {
+        'result': 2,
+        'comment': 'The order not found.'
+    }
+
+
+def handle_incorrect_total_price_exception(order):
+    return {
+        'result': 5,
+        'comment': 'Total price incorrect.'
+    }
+
+
+def is_total_price_incorrect(order, sum_from_bank):
+    sum_from_our_db = get_total_price_of_order(order)
+    return sum_from_our_db != float(sum_from_bank)
+
+
+def is_order_expired(order):
+    return order.is_order_expired()
+
+
+def handle_order_expired_exception():
+    return {
+        'result': 5,
+        'comment': 'Time is up, order canceled.'
+    }

@@ -12,12 +12,6 @@ from api.modules.order.serializers import OrderDetailSerializer
 
 
 class OrderAPIView(APIView):
-
-    def get(self, request):
-        request = self.request
-
-        order_id = request.data['account']
-
     def post(self, request):
         request = self.request
 
