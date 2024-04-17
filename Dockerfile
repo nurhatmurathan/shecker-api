@@ -2,13 +2,14 @@ FROM python:3.11-alpine
 
 WORKDIR /app
 
-ENV DEBUG=False
-ENV PROD=True
+ENV DEBUG=False \
+    PROD=True
 
 COPY requirements.txt .
 
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 RUN pip install gunicorn
+RUN python manage.py collectstatic --noinput
 
 COPY . .
 
