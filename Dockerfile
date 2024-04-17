@@ -2,8 +2,8 @@ FROM python:3.11-alpine
 
 WORKDIR /app
 
-ENV DEBUG=False \
-    PROD=True
+ENV PROD=True \
+#    DEBUG=False
 
 COPY requirements.txt .
 
