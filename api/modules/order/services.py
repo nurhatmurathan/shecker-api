@@ -1,4 +1,4 @@
-from api.models import Order, OrderProduct
+from api.models import Order
 
 from api.modules.order.serializers import (
     OrderProductSerializer,
@@ -9,7 +9,7 @@ from api.modules.product import services as product_services
 
 
 def create_instance():
-    return Order.objects.create(status=Order.Status.PENDING, date=)
+    return Order.objects.create(status=Order.Status.PENDING)
 
 
 def get_serialized_instance(order: Order):
@@ -58,6 +58,10 @@ def get_total_price_of_order(order: Order):
 
 def set_order_status(order: Order, status: Order.Status):
     order.set_status(status)
+
+
+def set_order_date(order, date):
+    order.set_date(date)
 
 
 def handle_status_of_order(order: Order, command):

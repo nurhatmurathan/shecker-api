@@ -1,5 +1,7 @@
 from django.db import models
-from datetime import datetime, timedelta
+from datetime import timedelta
+from django.utils import timezone
+
 
 class Fridge(models.Model):
     account = models.CharField(primary_key=True)
@@ -52,6 +54,10 @@ class Order(models.Model):
         self.status = new_status
         self.save()
 
+    def set_date(self, date):
+        self.date = date
+        self.save()
+
     def calculate_total_sum(self):
         order_products = self.orderproduct_set.all()
 
@@ -62,8 +68,10 @@ class Order(models.Model):
         return total_sum
 
     def is_order_expired(self) -> bool:
-        current_date = datetime.now()
-        time_difference = current_date - self.date
+        current_date = timezone.now()
+        current_date_utc = current_date.replace(tzinfo=None)
+
+        time_difference = current_date_utc - self.date.replace(tzinfo=None)
 
         return time_difference > timedelta(minutes=1)
 

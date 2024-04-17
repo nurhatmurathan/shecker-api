@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from django.db import transaction as db_transaction
+from django.utils import timezone
 
 from api.models import Order
 from api.modules.order import services as order_services
@@ -47,12 +48,12 @@ class PaymentHandlingAPIView(APIView):
             response = order_services.handle_order_not_found_exception()
             return self._generate_exception_json(order, response, txn_id)
 
-        if order_services.is_order_expired(order):
-            response = order_services.handle_order_expired_exception()
-            return self._generate_exception_json(order, response, txn_id)
-
         response = order_services.handle_status_of_order(order, command)
         if response.get('result') != 0:
+            return self._generate_exception_json(order, response, txn_id)
+
+        if order_services.is_order_expired(order):
+            response = order_services.handle_order_expired_exception()
             return self._generate_exception_json(order, response, txn_id)
 
         return handler(sum_from_bank, txn_id, txn_date, order)
@@ -62,6 +63,8 @@ class PaymentHandlingAPIView(APIView):
 
         product_list = order_services.get_product_list_of_order(order)
         total_price = order_services.get_total_price_of_order(order)
+
+        order_services.set_order_date(order, timezone.now())
         order_services.set_order_status(order, Order.Status.CHECKED)
         return {
             'txn_id': transaction.check_txn_id,
@@ -82,6 +85,7 @@ class PaymentHandlingAPIView(APIView):
             return self._generate_exception_json(order, response, pay_txn_id)
 
         order_services.reduce_quantity_of_product(order)
+        order_services.set_order_date(order, timezone.now())
         order_services.set_order_status(order, Order.Status.SUCCESS)
 
         return {

@@ -17,7 +17,6 @@ class OrderAPIView(APIView):
 
         try:
             with transaction.atomic():
-
                 basket_products = self._get_basket_details(request.data)
                 order = services.create_order_and_order_details(basket_products)
 
