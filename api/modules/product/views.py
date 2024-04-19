@@ -1,18 +1,21 @@
-#
-# from rest_framework.views import APIView
-# from rest_framework.response import Response
-# from rest_framework import status
-#
-# from api.models import Order
-#
-# from api.modules.order import services
-#
-#
-# class TestAPIView(APIView):
-#
-#     def get(self, request):
-#         try:
-#             services.test_services()
-#             return Response(data={'message': Order.Status.PENDING}, status=status.HTTP_200_OK)
-#         except Exception as exception:
-#             return Response(data={'message': exception.args[0]}, status=status.HTTP_400_BAD_REQUEST)
+from rest_framework.viewsets import ModelViewSet
+
+from api.models import Product
+from api.permissions import IsStaffUser, IsSuperUser
+from api.modules.product.serializers import (
+    ProductSerializer,
+    ProductCoverSerializer,
+)
+
+
+class ProductAdminModelViewSet(ModelViewSet):
+    queryset = Product.objects.all()
+    permission_classes = [IsStaffUser, IsSuperUser]
+    serializer_class = ProductSerializer
+
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return ProductCoverSerializer
+
+        return super().get_serializer_class()
+

@@ -1,11 +1,13 @@
-from api.models import Order
+from datetime import timedelta
+from django.utils import timezone
 
+from api.models import Order
 from api.modules.order.serializers import (
     OrderProductSerializer,
     OrderProductCoverSerializer,
     OrderSerializer
 )
-from api.modules.product import services as product_services
+from api.modules.fridgeproduct import services as fridgeproduct_services
 
 
 def create_instance():
@@ -34,7 +36,7 @@ def create_order_and_order_details(basket_products: []):
         serializer.is_valid(raise_exception=True)
         instance = serializer.save()
 
-        product_services.check_product_availability(instance)
+        fridgeproduct_services.check_product_availability(instance)
 
     return order
 
@@ -43,7 +45,7 @@ def reduce_quantity_of_product(order: Order):
     order_products = order.orderproduct_set.all()
 
     for order_product in order_products:
-        product_services.check_product_availability(order_product)
+        fridgeproduct_services.check_product_availability(order_product)
         order_product.fridge_product.reduce_quantity(order_product.amount)
 
 
@@ -113,17 +115,22 @@ def handle_incorrect_total_price_exception(order):
     }
 
 
-def is_total_price_incorrect(order, sum_from_bank):
+def is_total_price_incorrect(order, sum_from_bank) -> bool:
     sum_from_our_db = get_total_price_of_order(order)
     return sum_from_our_db != float(sum_from_bank)
 
 
-def is_order_expired(order):
-    return order.is_order_expired()
+def is_order_expired(order) -> bool:
+    current_date = timezone.now()
+    current_date_utc = current_date.replace(tzinfo=None)
+
+    time_difference = current_date_utc - order.date.replace(tzinfo=None)
+
+    return time_difference > timedelta(minutes=1)
 
 
 def handle_order_expired_exception():
     return {
-        'result': 5,
+        'result': 2,
         'comment': 'Time is up, order canceled.'
     }

@@ -1,8 +1,13 @@
+from rest_framework import routers
 
-from django.urls import path
+from django.urls import path, include
+from api.modules.product.views import (
+    ProductAdminModelViewSet,
+)
 
-# from api.modules.product.views import TestAPIView
+product_admin_router = routers.SimpleRouter()
+product_admin_router.register(r'admin', ProductAdminModelViewSet)
 
 urlpatterns = [
-    # path('', TestAPIView.as_view(), name='test-view')
+    path('', include(product_admin_router.urls))
 ]

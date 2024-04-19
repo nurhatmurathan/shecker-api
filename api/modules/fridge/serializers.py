@@ -1,12 +1,18 @@
 from rest_framework import serializers
 
-from api.models import FridgeProduct
-from api.modules.product.serializers import ProductSerializer
+from api.models import Fridge
+from api.modules.fridgeproduct.serializers import FridgeProductCoverSerializer
 
 
-class FridgeProductSerializer(serializers.ModelSerializer):
-    product = ProductSerializer(many=False)
+class FridgeAdminSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fridge
+        fields = "__all__"
+
+
+class FridgeAdminCoverSerializer(serializers.ModelSerializer):
+    products = FridgeProductCoverSerializer(source='fridgeproduct_set', many=True)
 
     class Meta:
-        model = FridgeProduct
-        fields = ['id', 'quantity', 'product']
+        model = Fridge
+        fields = ['account', 'description', 'products']

@@ -20,7 +20,6 @@ def get_instance_by_order_id(order_id):
 
 
 def generate_exception_json(txn_id, result, comment):
-
     return {
         'txn_id': txn_id,
         'result': result,

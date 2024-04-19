@@ -28,8 +28,6 @@ class OrderSerializer(serializers.ModelSerializer):
     account = serializers.SerializerMethodField()
     sum = serializers.SerializerMethodField()
 
-    # order_products = OrderProductsCoverSerializer(source='orderproduct_set', many=True)
-
     class Meta:
         model = Order
         fields = ['account', 'sum', 'date']

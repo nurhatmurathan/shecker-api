@@ -1,15 +1,15 @@
 from rest_framework import serializers
-
-from api.models import Product, FridgeProduct
+from api.models import Product
 
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'image', ]
+        fields = "__all__"
 
 
 class ProductCoverSerializer(serializers.ModelSerializer):
-    class Meat:
+    class Meta:
         model = Product
         fields = ['id', 'name', 'price']
+
