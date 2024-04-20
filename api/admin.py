@@ -11,8 +11,15 @@ class ProductAdmin(admin.ModelAdmin):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ('id', 'status')
+    list_display = ('id', 'fridge_id', 'status')
     list_display_links = ('id',)
+
+    def fridge_id(self, obj):
+        order_products = obj.orderproduct_set.all()
+        if order_products.exists():
+            return order_products.first().fridge_product.fridge.account
+
+        return None
 
 
 class FridgeProductAdmin(admin.ModelAdmin):
@@ -33,11 +40,8 @@ class FridgeProductAdmin(admin.ModelAdmin):
 
 
 class OrderProductAdmin(admin.ModelAdmin):
-    list_display = ('id', 'fridge_product_link', 'fridge_id', "order_link", "amount")
+    list_display = ('id', 'fridge_product_link', "order_link", "amount")
     list_display_links = ('id',)
-
-    def fridge_id(self, obj):
-        return obj.fridge_product.fridge.account
 
     def fridge_product_link(self, obj):
         url = reverse("admin:api_fridgeproduct_change", args=[obj.fridge_product.id])
