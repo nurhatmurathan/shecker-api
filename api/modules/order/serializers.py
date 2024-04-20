@@ -40,6 +40,15 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class OrderDetailSerializer(serializers.ModelSerializer):
+    fridge_id = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
-        fields = '__all__'
+        fields = ['id', 'status', 'fridge_id', 'date']
+
+    def get_fridge_id(self, obj):
+        order_products = obj.orderproduct_set.all()
+        if order_products.exists():
+            return order_products.first().fridge_product.fridge.account
+
+        return None
