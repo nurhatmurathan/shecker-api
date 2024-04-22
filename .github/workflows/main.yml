@@ -48,4 +48,5 @@ jobs:
     - name: Deploy to Google Cloud Run
       run: |
         gcloud run deploy django-boilerplate \
-          --image=docker.io/nurhatmurathan/shecker-api:${{ github.sha }}
+          --image=docker.io/nurhatmurathan/shecker-api:${{ github.sha }} \
+          --region=us-central1
