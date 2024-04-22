@@ -52,3 +52,12 @@ class OrderDetailSerializer(serializers.ModelSerializer):
             return order_products.first().fridge_product.fridge.account
 
         return None
+
+
+class BasketProductSerializer(serializers.Serializer):
+    fridge_product = serializers.IntegerField()
+    amount = serializers.IntegerField()
+
+
+class BasketSerializer(serializers.Serializer):
+    basket_products = BasketProductSerializer(many=True)
