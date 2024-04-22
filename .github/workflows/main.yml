@@ -49,7 +49,7 @@ jobs:
       run: |
         gcloud run deploy shecker-api \
           --image=docker.io/nurhatmurathan/shecker-api:${{ github.sha }} \
-          --region=us-central1 \
+          --region=europe-central2 \
           --allow-unauthenticated \
           --port=8000 \
           --min-instances=1 \
