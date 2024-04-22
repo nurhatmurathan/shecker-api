@@ -30,6 +30,7 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
         filter_params = {
             'min_price': self.request.query_params.get("min_price"),
             'max_price': self.request.query_params.get("max_price"),
+            'fridge': self.request.query_params.get("fridge"),
         }
 
         queryset = FridgeProduct.objects.select_related('product')
@@ -39,6 +40,8 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
             filters &= Q(price__gte=int(filter_params['min_price']))
         if filter_params['max_price']:
             filters &= Q(price__lte=int(filter_params['max_price']))
+        if filter_params['fridge']:
+            filters &= Q(fridge_id=int(filter_params['fridge']))
 
         return queryset.filter(filters)
 
