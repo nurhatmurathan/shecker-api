@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -13,6 +14,15 @@ from config import settings
 
 class PaymentHandlingAPIView(APIView):
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(name='command', description='enum: pay, check', required=True, type=str),
+            OpenApiParameter(name='account', description='order id', required=True, type=int),
+            OpenApiParameter(name='sum', description='total sum of basket', required=True, type=str),
+            OpenApiParameter(name='txn_id', description='kaspi transaction id', required=True, type=str),
+            OpenApiParameter(name='txn_date', description='kaspi transaction date, required if command `pay`',
+                             required=False, type=str)
+        ])
     def get(self, request):
         response = {}
 

@@ -169,9 +169,8 @@ CSRF_TRUSTED_ORIGINS = ['https://shecker-admin.com', 'https://www.shecker-admin.
 
 
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'Django5 Test Swagger API',
-    'DESCRIPTION': 'Django5 Test Swagger API description',
+    'TITLE': 'Shecker Swagger API',
+    'DESCRIPTION': 'Shecker smart vending',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
-    # OTHER SETTINGS
 }

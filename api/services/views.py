@@ -1,12 +1,17 @@
 import boto3
+from drf_spectacular.utils import inline_serializer, extend_schema
+
 from config import settings
 from api.utils import image_upload_path
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, serializers
 
 
+@extend_schema(
+    description="For upload image"
+)
 @api_view(['POST'])
 def upload_image(request):
     if request.method == 'POST' and request.FILES.get('image'):
@@ -24,9 +29,9 @@ def upload_image(request):
             )
 
             image_url = f"{settings.AWS_S3_CUSTOM_DOMAIN}/{path}"
-            return Response(data={'message': 'Image uploaded successfully', 'url': image_url}, status=status.HTTP_200_OK)
+            return Response(data={'message': 'Image uploaded successfully', 'url': image_url},
+                            status=status.HTTP_200_OK)
         except Exception as exception:
             return Response(data={'message': str(exception)}, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({'error': 'Invalid request'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
-
