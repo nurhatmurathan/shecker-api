@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -29,6 +30,7 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
         filter_params = {
             'min_price': self.request.query_params.get("min_price"),
             'max_price': self.request.query_params.get("max_price"),
+            'fridge': self.request.query_params.get("fridge"),
         }
 
         queryset = FridgeProduct.objects.select_related('product')
@@ -38,6 +40,8 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
             filters &= Q(price__gte=int(filter_params['min_price']))
         if filter_params['max_price']:
             filters &= Q(price__lte=int(filter_params['max_price']))
+        if filter_params['fridge']:
+            filters &= Q(fridge_id=int(filter_params['fridge']))
 
         return queryset.filter(filters)
 
@@ -61,3 +65,19 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
                 return Response(data=fridge_products_serialized_data, status=status.HTTP_200_OK)
         except Exception as exception:
             return Response(data={'message': str(exception)}, status=status.HTTP_400_BAD_REQUEST)
+
+    @extend_schema(
+        responses=FridgeProductListSerializer,
+        parameters=[
+            OpenApiParameter(name='min_price', description='filter min price', required=True, type=int),
+            OpenApiParameter(name='max_price', description='filter max price', required=True, type=int),
+            OpenApiParameter(name='fridge', description='fridge id', required=True, type=int)
+        ])
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        responses=FridgeProductCoverSerializer
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)

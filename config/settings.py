@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'storages',
     'rest_framework',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -85,7 +86,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 WSGI_APPLICATION = "config.wsgi.application"
@@ -162,5 +164,13 @@ CORS_ORIGIN_ALLOW_ALL = True
 #   'http://localhost:8000',
 # )
 
-CSRF_TRUSTED_ORIGINS = ['https://shecker-admin.com', 'https://www.shecker-admin.com',
+CSRF_TRUSTED_ORIGINS = ['https://shecker-admin.com', 'https://www.shecker-admin.com', 'https://*.run.app',
                         "http://localhost:8000", "http://*.127.0.0.1", "http://127.0.0.1:8000"]
+
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Shecker Swagger API',
+    'DESCRIPTION': 'Shecker smart vending',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}

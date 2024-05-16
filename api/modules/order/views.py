@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -9,10 +10,14 @@ from django.db import transaction
 from api.models import Order
 from api.utils import get_data
 from api.modules.order import services
-from api.modules.order.serializers import OrderDetailSerializer
+from api.modules.order.serializers import OrderDetailSerializer, OrderSerializer, BasketSerializer
 
 
 class OrderAPIView(APIView):
+    @extend_schema(
+        request=BasketSerializer,
+        responses=OrderSerializer,
+    )
     def post(self, request):
         request = self.request
 
