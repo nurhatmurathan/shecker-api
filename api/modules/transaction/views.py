@@ -78,7 +78,13 @@ class PaymentHandlingAPIView(APIView):
         }
 
     def _handle_pay_command(self, sum_from_bank, pay_txn_id, txn_date, order):
-        transaction_services.set_pay_txn_id_and_date(order.transaction, pay_txn_id, txn_date)
+        transaction = order.transaction
+
+        if transaction_services.is_transaction_expired(transaction):
+            response = transaction_services.handle_transaction_expired_exception()
+            return self._generate_exception_json(order, response, pay_txn_id)
+
+        transaction_services.set_pay_txn_id_and_date(transaction, pay_txn_id, txn_date)
 
         if order_services.is_total_price_incorrect(order, sum_from_bank):
             response = order_services.handle_incorrect_total_price_exception(order)
@@ -89,8 +95,8 @@ class PaymentHandlingAPIView(APIView):
         order_services.set_order_status(order, Order.Status.SUCCESS)
 
         return {
-            'txn_id': order.transaction.pay_txn_id,
-            'prv_txn_id': order.transaction.pk,
+            'txn_id': transaction.pay_txn_id,
+            'prv_txn_id': transaction.pk,
             'result': 0,
             'sum': float(sum_from_bank),
             'bin': settings.BIN,
