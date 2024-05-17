@@ -83,6 +83,7 @@ class Transaction(models.Model):
     check_txn_id = models.CharField(null=True, blank=True)
     pay_txn_id = models.CharField(null=True, blank=True)
     txn_date = models.CharField(null=True, blank=True)
+    expiration_time = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return str(self.id)
