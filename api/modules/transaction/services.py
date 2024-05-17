@@ -5,14 +5,11 @@ from api.models import Transaction
 from config import settings
 
 
-def get_or_create_instance(order_id,  check_txn_id):
+def get_or_create_instance(order_id):
     try:
         return Transaction.objects.get(order_id=order_id)
     except Transaction.DoesNotExist:
-        return Transaction.objects.create(
-            order_id=order_id,
-            check_txn_id=check_txn_id
-        )
+        return Transaction.objects.create(order_id=order_id)
 
 
 def get_instance_by_order_id(order_id):
@@ -33,6 +30,10 @@ def generate_exception_json(txn_id, result, comment):
 
 def set_pay_txn_id_and_date(transaction: Transaction, pay_txn_id, txn_date):
     transaction.set_pay_txn_id_and_date(pay_txn_id, txn_date)
+
+
+def set_check_txn_id(transaction: Transaction, check_txn_id):
+    transaction.set_check_txn_id(check_txn_id)
 
 
 def is_transaction_expired(transaction) -> bool:

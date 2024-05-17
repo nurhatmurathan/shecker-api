@@ -66,10 +66,16 @@ class PaymentHandlingAPIView(APIView):
             response = order_services.handle_order_expired_exception()
             return self._generate_exception_json(order, response, txn_id)
 
+        transaction = transaction_services.get_or_create_instance(order.id)
+        if transaction_services.is_transaction_expired(transaction):
+            response = transaction_services.handle_transaction_expired_exception()
+            return self._generate_exception_json(order, response, txn_id)
+
         return handler(sum_from_bank, txn_id, txn_date, order)
 
     def _handle_check_command(self, sum_from_bank, check_txn_id, txn_date, order):
-        transaction = transaction_services.get_or_create_instance(order.id, check_txn_id)
+        transaction = order.transaction
+        transaction_services.set_check_txn_id(transaction, check_txn_id)
 
         product_list = order_services.get_product_list_of_order(order)
         total_price = order_services.get_total_price_of_order(order)
@@ -89,11 +95,6 @@ class PaymentHandlingAPIView(APIView):
 
     def _handle_pay_command(self, sum_from_bank, pay_txn_id, txn_date, order):
         transaction = order.transaction
-
-        if transaction_services.is_transaction_expired(transaction):
-            response = transaction_services.handle_transaction_expired_exception()
-            return self._generate_exception_json(order, response, pay_txn_id)
-
         transaction_services.set_pay_txn_id_and_date(transaction, pay_txn_id, txn_date)
 
         if order_services.is_total_price_incorrect(order, sum_from_bank):
