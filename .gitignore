@@ -36,9 +36,12 @@ Thumbs.db
 # Environment-specific files
 .env
 .env.local
+.env.nurha
 .env.dev
 .env.prod
 .env.*.local
+
+db_copy.py
 
 # Ignore the pipenv and poetry lock files
 Pipfile.lock

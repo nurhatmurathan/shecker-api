@@ -1,5 +1,4 @@
 from drf_spectacular.utils import extend_schema
-from rest_framework.exceptions import NotFound
 from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.response import Response
