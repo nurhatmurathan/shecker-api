@@ -5,6 +5,11 @@ from django.utils.html import format_html
 from .models import *
 
 
+class FridgeAdmin(admin.ModelAdmin):
+    list_display = ('account', 'address')
+    list_display_links = ('account',)
+
+
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', "price")
     list_display_links = ('id', "name")
@@ -67,7 +72,7 @@ class TransactionAdmin(admin.ModelAdmin):
     order_link.short_description = 'Order'
 
 
-admin.site.register(Fridge)
+admin.site.register(Fridge, FridgeAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(FridgeProduct, FridgeProductAdmin)
 admin.site.register(Order, OrderAdmin)
