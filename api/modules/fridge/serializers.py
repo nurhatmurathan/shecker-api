@@ -4,6 +4,18 @@ from api.models import Fridge
 from api.modules.fridgeproduct.serializers import FridgeProductCoverSerializer
 
 
+class FridgeListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fridge
+        fields = ['account', 'address']
+
+
+class FridgeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Fridge
+        fields = "__all__"
+
+
 class FridgeAdminSerializer(serializers.ModelSerializer):
     class Meta:
         model = Fridge
@@ -15,4 +27,4 @@ class FridgeAdminCoverSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Fridge
-        fields = ['account', 'description', 'products']
+        fields = ['account', 'description', 'address', 'products']
