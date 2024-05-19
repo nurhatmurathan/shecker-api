@@ -6,9 +6,9 @@ from api.modules.fridgeproduct.views import (
 )
 
 fridge_product_admin_router = routers.SimpleRouter()
-fridge_product_admin_router.register(r'admin', FridgeProductAdminModelViewSet, basename='fridgeproduct')
+fridge_product_admin_router.register(r'', FridgeProductAdminModelViewSet, basename='fridgeproduct')
 
 
 urlpatterns = [
-    path('', include(fridge_product_admin_router.urls)),
+    path('admin/', include(fridge_product_admin_router.urls)),
 ]

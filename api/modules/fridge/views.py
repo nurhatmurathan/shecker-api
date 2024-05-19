@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from api.models import FridgeProduct, Fridge
-from api.permissions import IsStaffUser, IsSuperUser
+from api.permissions import IsStaffUserReadOnly, IsSuperUser
 from api.modules.fridge.serializers import (
     FridgeSerializer,
     FridgeListSerializer,
@@ -32,7 +32,7 @@ class FridgeReadOnlyModelViewSet(ReadOnlyModelViewSet):
 
 
 class FridgeAdminModelViewSet(ModelViewSet):
-    permission_classes = [IsStaffUser, IsSuperUser]
+    permission_classes = [IsStaffUserReadOnly, IsSuperUser]
     queryset = Fridge.objects.all()
     serializer_class = FridgeAdminSerializer
 

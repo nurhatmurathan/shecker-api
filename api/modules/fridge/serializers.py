@@ -23,8 +23,8 @@ class FridgeAdminSerializer(serializers.ModelSerializer):
 
 
 class FridgeAdminCoverSerializer(serializers.ModelSerializer):
-    products = FridgeProductCoverSerializer(source='fridgeproduct_set', many=True)
+    fridge_products = FridgeProductCoverSerializer(source='fridgeproduct_set', many=True)
 
     class Meta:
         model = Fridge
-        fields = ['account', 'description', 'address', 'products']
+        fields = ['account', 'description', 'address', 'fridge_products']

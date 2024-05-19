@@ -6,8 +6,8 @@ from api.modules.product.views import (
 )
 
 product_admin_router = routers.SimpleRouter()
-product_admin_router.register(r'admin', ProductAdminModelViewSet)
+product_admin_router.register(r'', ProductAdminModelViewSet)
 
 urlpatterns = [
-    path('', include(product_admin_router.urls))
+    path('admin/', include(product_admin_router.urls))
 ]

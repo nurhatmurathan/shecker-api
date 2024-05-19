@@ -13,7 +13,7 @@ def image_upload_path(filename):
 
 def get_data(data, key, fields):
     if key not in data:
-        raise NotFound("Request is must contains basket information.")
+        raise NotFound(f"Request is must contains {key} information.")
 
     data_list = data.get(key, [])
     all_required_fields_present = all(

@@ -10,7 +10,7 @@ from api.modules.product.serializers import (
 
 class ProductAdminModelViewSet(ModelViewSet):
     queryset = Product.objects.all()
-    permission_classes = [IsStaffUser, IsSuperUser]
+    permission_classes = [IsSuperUser]
     serializer_class = ProductSerializer
 
     def get_serializer_class(self):
