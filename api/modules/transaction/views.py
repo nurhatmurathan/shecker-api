@@ -67,10 +67,6 @@ class PaymentHandlingAPIView(APIView):
             return self._generate_exception_json(order, response, txn_id)
 
         transaction = transaction_services.get_or_create_instance(order.id)
-        if transaction_services.is_transaction_expired(transaction):
-            response = transaction_services.handle_transaction_expired_exception()
-            return self._generate_exception_json(order, response, txn_id)
-
         return handler(sum_from_bank, txn_id, txn_date, order)
 
     def _handle_check_command(self, sum_from_bank, check_txn_id, txn_date, order):
