@@ -165,7 +165,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 #   'http://localhost:8000',
 # )
 
-CSRF_TRUSTED_ORIGINS = ['https://shecker-admin.com', 'https://www.shecker-admin.com', 'https://*.run.app', 'https://*awsapprunner.com',
+CSRF_TRUSTED_ORIGINS = ['https://shecker-admin.com', 'https://www.shecker-admin.com', 'https://*.run.app', 'https://*.awsapprunner.com',
                         "http://localhost:8000", "http://*.127.0.0.1", "http://127.0.0.1:8000"]
 
 
