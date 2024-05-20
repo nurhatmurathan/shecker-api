@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -34,6 +35,11 @@ class FridgeProduct(models.Model):
     def reduce_quantity(self, amount):
         self.quantity -= amount
         self.save()
+
+
+class CourierFridgePermission(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    fridge = models.ForeignKey(Fridge, on_delete=models.PROTECT)
 
 
 class Order(models.Model):
