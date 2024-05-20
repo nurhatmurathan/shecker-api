@@ -103,7 +103,14 @@ DATABASES = {
         'NAME': os.getenv("DB_NAME"),
         'USER': os.getenv("DB_USER"),
         'PASSWORD': os.getenv("DB_PASS"),
-    }
+    },
+    # 'nurha': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'HOST': "localhost",
+    #     'NAME': os.getenv("DB_NAME"),
+    #     'USER': "",
+    #     'PASSWORD': "",
+    # }
 }
 
 # Password validation

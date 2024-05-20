@@ -4,8 +4,11 @@ from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import generics
 from rest_framework import permissions
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from api.modules.staff.serializers import StaffSerializer
+from api.permissions import *
 
 
 class StaffListCreateAPIView(generics.ListCreateAPIView):

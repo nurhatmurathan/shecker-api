@@ -11,6 +11,11 @@ class Fridge(models.Model):
         return self.account
 
 
+class CourierFridgePermission(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    fridge = models.ForeignKey(Fridge, on_delete=models.PROTECT)
+
+
 class Product(models.Model):
     name = models.CharField(max_length=50)
     description = models.TextField(null=True, blank=True)
@@ -35,11 +40,6 @@ class FridgeProduct(models.Model):
     def reduce_quantity(self, amount):
         self.quantity -= amount
         self.save()
-
-
-class CourierFridgePermission(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    fridge = models.ForeignKey(Fridge, on_delete=models.PROTECT)
 
 
 class Order(models.Model):

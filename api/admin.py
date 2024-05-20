@@ -10,6 +10,11 @@ class FridgeAdmin(admin.ModelAdmin):
     list_display_links = ('account',)
 
 
+class CourierFridgePermissionAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'fridge')
+    list_display_links = ('id',)
+
+
 class ProductAdmin(admin.ModelAdmin):
     list_display = ('id', 'name', "price")
     list_display_links = ('id', "name")
@@ -73,6 +78,7 @@ class TransactionAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Fridge, FridgeAdmin)
+admin.site.register(CourierFridgePermission, CourierFridgePermissionAdmin)
 admin.site.register(Product, ProductAdmin)
 admin.site.register(FridgeProduct, FridgeProductAdmin)
 admin.site.register(Order, OrderAdmin)
