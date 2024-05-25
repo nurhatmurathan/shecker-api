@@ -1,8 +1,15 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from django.urls import reverse
 from django.utils.html import format_html
 
 from .models import *
+
+
+class CustomUserAdmin(UserAdmin):
+    model = CustomUser
+    fieldsets = UserAdmin.fieldsets + (
+        (None, {'fields': ('company',  'is_local_admin')}),)
 
 
 class FridgeAdmin(admin.ModelAdmin):
@@ -77,6 +84,7 @@ class TransactionAdmin(admin.ModelAdmin):
     order_link.short_description = 'Order'
 
 
+admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Fridge, FridgeAdmin)
 admin.site.register(CourierFridgePermission, CourierFridgePermissionAdmin)
 admin.site.register(Product, ProductAdmin)

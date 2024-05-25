@@ -3,6 +3,12 @@ from rest_framework.permissions import BasePermission, SAFE_METHODS
 from api.models import Fridge, CourierFridgePermission
 
 
+class IsSuperAdmin(BasePermission):
+
+    def has_permission(self, request, view):
+        return request.user and request.user.is_superuser
+
+
 class IsStaffUser(BasePermission):
 
     def has_permission(self, request, view):
