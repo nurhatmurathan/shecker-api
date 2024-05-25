@@ -12,7 +12,7 @@ from api.permissions import *
 
 
 class StaffListCreateAPIView(generics.ListCreateAPIView):
-    permission_classes = [permissions.IsAdminUser]
+    # permission_classes = [permissions.IsAdminUser]
     serializer_class = StaffSerializer
 
     @extend_schema(
