@@ -30,7 +30,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user = CustomUser.objects.create(
             company=validated_data['company'],
             email=validated_data['email'],
-            username=validated_data['email']
+            username=validated_data['email'],
+            is_active=False,
+            is_local_admin=True
         )
 
         user.set_password(validated_data['password'])
