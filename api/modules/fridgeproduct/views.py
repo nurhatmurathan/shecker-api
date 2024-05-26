@@ -30,7 +30,7 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
         permission_classes = [IsAuthenticated]
 
         if self.action in ['list', 'retrieve', 'create', 'update', 'partial_update']:
-            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwnerForFridgeProduct | IsStaffUserFridgeCourier]
+            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwnerForFridgeProduct ]#| IsStaffUserFridgeCourier]
         elif self.action == 'destroy':
             permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwnerForFridgeProduct]
 
