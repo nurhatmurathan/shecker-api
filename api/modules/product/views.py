@@ -1,7 +1,7 @@
 from rest_framework.viewsets import ModelViewSet
 
 from api.models import Product
-from api.permissions import IsStaffUser, IsSuperUser
+from api.permissions import IsSuperAdmin, IsLocalAdmin, IsStaffReadOnly
 from api.modules.product.serializers import (
     ProductSerializer,
     ProductCoverSerializer,
@@ -10,7 +10,7 @@ from api.modules.product.serializers import (
 
 class ProductAdminModelViewSet(ModelViewSet):
     queryset = Product.objects.all()
-    permission_classes = [IsSuperUser]
+    permission_classes = [IsSuperAdmin, IsLocalAdmin, IsStaffReadOnly]
     serializer_class = ProductSerializer
 
     def get_serializer_class(self):

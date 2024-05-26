@@ -1,6 +1,7 @@
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import status
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.filters import OrderingFilter, SearchFilter
@@ -10,7 +11,7 @@ from django.db import transaction
 
 from api.utils import get_data
 from api.models import FridgeProduct
-from api.permissions import IsStaffUser, IsSuperUser
+from api.permissions import *
 from api.modules.fridgeproduct.services import create_or_update_instances
 from api.modules.fridgeproduct.serializers import (
     FridgeProductSerializer,
@@ -21,12 +22,23 @@ from api.modules.fridgeproduct.serializers import (
 
 class FridgeProductAdminModelViewSet(ModelViewSet):
     serializer_class = FridgeProductSerializer
-    permission_classes = [IsStaffUser, IsSuperUser]
     filter_backends = [OrderingFilter, SearchFilter]
     ordering_fields = ['quantity', 'product__price']
     search_fields = ['product__name', 'product__description']
 
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated]
+
+        if self.action in ['list', 'retrieve', 'create', 'update', 'partial_update']:
+            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwnerForFridgeProduct ]#| IsStaffUserFridgeCourier]
+        elif self.action == 'destroy':
+            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwnerForFridgeProduct]
+
+        return [permission() for permission in permission_classes]
+
     def get_queryset(self):
+        user = self.request.user
+
         filter_params = {
             'min_price': self.request.query_params.get("min_price"),
             'max_price': self.request.query_params.get("max_price"),
@@ -34,8 +46,14 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
         }
 
         queryset = FridgeProduct.objects.select_related('product')
-        filters = Q()
 
+        if user.is_local_admin:
+            return queryset.filter(fridge__owner=user)
+        elif user.is_staff:
+            permitted_fridge_ids = CourierFridgePermission.objects.filter(user=user).values_list('fridge_id', flat=True)
+            return queryset.filter(fridge_id__in=permitted_fridge_ids)
+
+        filters = Q()
         if filter_params['min_price']:
             filters &= Q(price__gte=int(filter_params['min_price']))
         if filter_params['max_price']:

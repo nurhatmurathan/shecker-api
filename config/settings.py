@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 import os
+from datetime import timedelta
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -19,22 +20,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 if not os.getenv("PROD"):
     load_dotenv('.env')
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-# .envs
-SECRET_KEY = os.getenv("SECRET_KEY")
-BIN = os.getenv("BIN")
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 if os.getenv("DEBUG"):
     DEBUG = False
 
+SECRET_KEY = os.getenv("SECRET_KEY")
+BIN = os.getenv("BIN")
+
 APPEND_SLASH = True
 
-ALLOWED_HOSTS = ["127.0.0.1", "www.shecker-admin.com", "shecker-admin.com", "*"]
+ALLOWED_HOSTS = [
+    "*",
+    "127.0.0.1",
+    "www.shecker-admin.com",
+    "shecker-admin.com",
+]
 
 # Application definition
 
@@ -64,8 +64,6 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "config.urls"
-
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -86,14 +84,15 @@ TEMPLATES = [
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.SessionAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
         'rest_framework.authentication.BasicAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication'
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
-
-WSGI_APPLICATION = "config.wsgi.application"
 
 # Database
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
@@ -110,8 +109,8 @@ DATABASES = {
     #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
     #     'HOST': "localhost",
     #     'NAME': os.getenv("DB_NAME"),
-    #     'USER': "",
-    #     'PASSWORD': "",
+    #     'USER': "nurha",
+    #     'PASSWORD': "8996",
     # }
 }
 
@@ -136,16 +135,14 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
+ROOT_URLCONF = "config.urls"
+WSGI_APPLICATION = "config.wsgi.application"
+AUTH_USER_MODEL = 'api.CustomUser'
+
 LANGUAGE_CODE = "en-us"
-
 TIME_ZONE = "UTC"
-
 USE_I18N = True
-
 USE_TZ = True
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 
 AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID")
@@ -174,8 +171,15 @@ CORS_ORIGIN_ALLOW_ALL = True
 #   'http://localhost:8000',
 # )
 
-CSRF_TRUSTED_ORIGINS = ['https://shecker-admin.com', 'https://www.shecker-admin.com', 'https://*.run.app', 'https://*.awsapprunner.com',
-                        "http://localhost:8000", "http://*.127.0.0.1", "http://127.0.0.1:8000"]
+CSRF_TRUSTED_ORIGINS = [
+    'https://shecker-admin.com',
+    'https://www.shecker-admin.com',
+    'https://*.run.app',
+    'https://*.awsapprunner.com',
+    "http://localhost:8000",
+    "http://*.127.0.0.1",
+    "http://127.0.0.1:8000"
+]
 
 
 SPECTACULAR_SETTINGS = {
@@ -183,4 +187,22 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'Shecker smart vending',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+}
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY,
+    'VERIFYING_KEY': None,
+    'AUDIENCE': None,
+    'ISSUER': None,
+    'AUTH_HEADER_TYPES': ('Bearer',),
+    'USER_ID_FIELD': 'id',
+    'USER_ID_CLAIM': 'user_id',
+    'AUTH_TOKEN_CLASSES': ('rest_framework_simplejwt.tokens.AccessToken',),
+    'TOKEN_TYPE_CLAIM': 'token_type',
+    'JTI_CLAIM': 'jti',
 }

@@ -1,8 +1,9 @@
 from rest_framework import generics
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
+from rest_framework.permissions import IsAuthenticated
 
-from api.models import FridgeProduct, Fridge
-from api.permissions import IsStaffUserReadOnly, IsSuperUser
+from api.models import FridgeProduct
+from api.permissions import *
 from api.modules.fridge.serializers import (
     FridgeSerializer,
     FridgeListSerializer,
@@ -32,7 +33,6 @@ class FridgeReadOnlyModelViewSet(ReadOnlyModelViewSet):
 
 
 class FridgeAdminModelViewSet(ModelViewSet):
-    permission_classes = [IsStaffUserReadOnly, IsSuperUser]
     queryset = Fridge.objects.all()
     serializer_class = FridgeAdminSerializer
 
@@ -42,3 +42,25 @@ class FridgeAdminModelViewSet(ModelViewSet):
 
         return super().get_serializer_class()
 
+    def get_permissions(self):
+        permission_classes = [IsAuthenticated]
+
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwner | IsStaffReadOnly]
+        elif self.action in ['create', 'update', 'partial_update', 'destroy']:
+            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwner]
+
+        return [permission() for permission in permission_classes]
+
+    def get_queryset(self):
+        user = self.request.user
+
+        if user.is_superuser:
+            return Fridge.objects.all()
+        elif user.is_local_admin:
+            return Fridge.objects.filter(owner=user)
+        elif user.is_staff:
+            permitted_fridge_ids = CourierFridgePermission.objects.filter(user=user).values_list('fridge_id', flat=True)
+            return Fridge.objects.filter(id__in=permitted_fridge_ids)
+
+        return Fridge.objects.none()

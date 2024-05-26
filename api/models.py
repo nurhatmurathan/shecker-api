@@ -1,8 +1,17 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+class CustomUser(AbstractUser):
+    company = models.CharField(null=True, blank=True, max_length=255)
+    is_local_admin = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.username
+
+
 class Fridge(models.Model):
+    owner = models.ForeignKey(CustomUser, null=True, blank=True, on_delete=models.SET_NULL)
     account = models.CharField(primary_key=True)
     description = models.TextField(null=True, blank=True)
     address = models.CharField(max_length=255)
@@ -12,7 +21,7 @@ class Fridge(models.Model):
 
 
 class CourierFridgePermission(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     fridge = models.ForeignKey(Fridge, on_delete=models.PROTECT)
 
 
