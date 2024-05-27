@@ -3,7 +3,7 @@ from rest_framework import generics
 from django.db.models import Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import ListModelMixin
 
 from api.modules.staff.serializers import StaffSerializer
@@ -43,3 +43,10 @@ class StaffListAPIView(ListModelMixin, GenericAPIView):
             queryset = queryset.filter(Q(is_staff=is_staff) | Q(is_local_admin=is_local_admin))
 
         return queryset
+
+
+class StaffDetailAPIView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsSuperAdmin]
+    serializer_class = StaffSerializer
+    queryset = CustomUser.objects.all()
+
