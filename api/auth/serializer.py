@@ -31,7 +31,6 @@ class UserCreateSerializer(serializers.ModelSerializer):
             company=validated_data['company'],
             email=validated_data['email'],
             username=validated_data['email'],
-            is_active=False,
             is_local_admin=True
         )
 

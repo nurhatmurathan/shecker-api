@@ -1,14 +1,19 @@
-from rest_framework import generics
-
+from django.db import transaction
 from django.db.models import Q
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
+
+from rest_framework import status
+from rest_framework.views import APIView
+from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.mixins import ListModelMixin
 
 from api.modules.staff.serializers import StaffSerializer
 from api.models import CustomUser
 from api.permissions import IsSuperAdmin
+from api.utils import get_data_without_fields
+from api.modules.staff import service
 
 
 class StaffListAPIView(ListModelMixin, GenericAPIView):
@@ -50,3 +55,21 @@ class StaffDetailAPIView(RetrieveUpdateDestroyAPIView):
     serializer_class = StaffSerializer
     queryset = CustomUser.objects.all()
 
+
+class BindFridgeToLocalAdminAPIView(APIView):
+    permission_classes = [IsSuperAdmin]
+
+    def post(self, request):
+        request = self.request
+
+        try:
+            with transaction.atomic():
+                local_admin_id = get_data_without_fields(request.data, 'local_admin_id')
+                fridge_ids = get_data_without_fields(request.data, 'fridges')
+
+                user = service.get_user(local_admin_id)
+                service.bind_local_admin_to_fridges(user, fridge_ids)
+
+                return Response(data={'message': 'Fridges successfully bound to the user.'}, status=status.HTTP_200_OK)
+        except Exception as exception:
+            return Response(data={'message': str(exception)}, status=status.HTTP_400_BAD_REQUEST)
