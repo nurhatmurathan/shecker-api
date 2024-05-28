@@ -42,7 +42,7 @@ jobs:
       uses: google-github-actions/setup-gcloud@v0
       with:
         service_account_key: ${{ secrets.GCP_SA_KEY }}
-        project_id: carbon-zone-417117
+        project_id: alash-sheker
 
     - name: Configure Docker for GCloud CLI
       run: gcloud auth configure-docker
@@ -51,8 +51,8 @@ jobs:
       run: |
         gcloud run deploy shecker-api \
           --image=docker.io/nurhatmurathan/shecker-api:${{ github.sha }} \
-          --region=us-central1 \
+          --region=europe-west1 \
           --allow-unauthenticated \
           --port=8000 \
           --min-instances=1 \
-          --max-instances=2 
+          --max-instances=10 
