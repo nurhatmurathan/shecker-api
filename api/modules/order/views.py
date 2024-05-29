@@ -1,3 +1,4 @@
+from django.db.models import Q
 from drf_spectacular.utils import extend_schema
 from rest_framework.views import APIView
 from rest_framework import generics
@@ -43,7 +44,6 @@ class OrderDetailView(generics.RetrieveAPIView):
 
 class OrderAdminReadonlyModelViewSet(ReadOnlyModelViewSet):
     permission_classes = [IsSuperAdmin]
-    queryset = Order.objects.all().order_by('date')
     serializer_class = OrderAdminListSerializer
     pagination_class = OrderAdminPagination
 
@@ -52,4 +52,23 @@ class OrderAdminReadonlyModelViewSet(ReadOnlyModelViewSet):
             return OrderAdminCoverSerializer
 
         return super().get_serializer_class()
+
+    def get_queryset(self):
+        queryset = Order.objects.all().order_by('date')
+
+        filter_params = {
+            'fridge_id': self.request.query_params.get('fridge_id', None),
+            'product_id': self.request.query_params.get('product_id', None),
+            'status': self.request.query_params.get('status', None)
+        }
+
+        filters = Q()
+        if filter_params['status']:
+            filters &= Q(status=str(filter_params['status']).upper())
+        if filter_params['fridge_id']:
+            filters &= Q(orderproduct__fridge_product__fridge__account=filter_params['fridge_id'])
+        if filter_params['product_id']:
+            filters &= Q(orderproduct__fridge_product__product__id=filter_params['product_id'])
+
+        return queryset.filter(filters).distinct()
 

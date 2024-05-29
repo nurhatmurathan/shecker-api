@@ -65,7 +65,7 @@ class OrderProductAdminSerializer(serializers.ModelSerializer):
 class OrderAdminCoverSerializer(serializers.ModelSerializer):
     total_sum = serializers.SerializerMethodField()
     total_quantity = serializers.SerializerMethodField()
-    order_products = OrderProductAdminSerializer(source='orderproduct_set')
+    order_products = OrderProductAdminSerializer(source='orderproduct_set', many=True)
 
     class Meta:
         model = Order

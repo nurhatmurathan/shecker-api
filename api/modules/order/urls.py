@@ -5,7 +5,7 @@ from django.urls import path, include
 from api.modules.order.views import OrderAPIView, OrderDetailView, OrderAdminReadonlyModelViewSet
 
 order_readonly_admin_router = SimpleRouter()
-order_readonly_admin_router.register(r'', OrderAdminReadonlyModelViewSet)
+order_readonly_admin_router.register(r'', OrderAdminReadonlyModelViewSet, basename='order')
 
 urlpatterns = [
     path('admin/', include(order_readonly_admin_router.urls)),

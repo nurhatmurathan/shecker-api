@@ -57,7 +57,7 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
         filter_params = {
             'min_price': self.request.query_params.get("min_price"),
             'max_price': self.request.query_params.get("max_price"),
-            'fridge': self.request.query_params.get("fridge"),
+            'fridge_account': self.request.query_params.get("fridge_account"),
         }
 
         queryset = FridgeProduct.objects.select_related('product').all()
@@ -73,9 +73,9 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
         if filter_params['max_price']:
             filters &= Q(price__lte=int(filter_params['max_price']))
         if filter_params['fridge']:
-            filters &= Q(fridge_id=int(filter_params['fridge']))
+            filters &= Q(fridge__account=int(filter_params['fridge_account']))
 
-        return queryset.filter(filters)
+        return queryset.filter(filters).distinct()
 
     @action(methods=['post'], detail=False,
             url_path='create-update',
