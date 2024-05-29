@@ -1,5 +1,6 @@
 from django.db.models import Q
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, extend_schema_view, OpenApiParameter
 from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.response import Response
@@ -18,9 +19,12 @@ from api.modules.order.serializers import OrderDetailSerializer, OrderSerializer
 
 
 class OrderAPIView(APIView):
+
     @extend_schema(
+        tags=['Order'],
         request=BasketSerializer,
         responses=OrderSerializer,
+        description="Create a new order with the provided basket products."
     )
     def post(self, request):
         request = self.request
@@ -36,12 +40,39 @@ class OrderAPIView(APIView):
             return Response(data={'message': str(exception.args[0])}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema_view(
+    retrieve=extend_schema(
+        tags=['Order'],
+        description="Retrieve detailed information about a specific order by its primary key.",
+        responses={200: OrderDetailSerializer}
+    )
+)
 class OrderDetailView(generics.RetrieveAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderDetailSerializer
     lookup_field = 'pk'
 
 
+@extend_schema_view(
+    list=extend_schema(
+        tags=['Order Admin'],
+        parameters=[
+            OpenApiParameter(name='fridge_id', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY,
+                             required=False, description='Filter by Fridge ID'),
+            OpenApiParameter(name='product_id', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY,
+                             required=False, description='Filter by Product ID'),
+            OpenApiParameter(name='status', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY,
+                             required=False, description='Filter by Status'),
+        ],
+        description="Retrieve a list of orders with optional filters for fridge, product, and status",
+        responses={200: OrderAdminListSerializer(many=True)}
+    ),
+    retrieve=extend_schema(
+        tags=['Fridge'],
+        description="Retrieve a specific order by ID",
+        responses={200: OrderAdminCoverSerializer}
+    )
+)
 class OrderAdminReadonlyModelViewSet(ReadOnlyModelViewSet):
     permission_classes = [IsSuperAdmin]
     serializer_class = OrderAdminListSerializer
@@ -57,8 +88,8 @@ class OrderAdminReadonlyModelViewSet(ReadOnlyModelViewSet):
         queryset = Order.objects.all().order_by('date')
 
         filter_params = {
-            'fridge_id': self.request.query_params.get('fridge_id', None),
-            'product_id': self.request.query_params.get('product_id', None),
+            'fridge_id': self.request.query_params.getlist('fridge_id', None),
+            'product_id': self.request.query_params.getlist('product_id', None),
             'status': self.request.query_params.get('status', None)
         }
 
@@ -66,9 +97,9 @@ class OrderAdminReadonlyModelViewSet(ReadOnlyModelViewSet):
         if filter_params['status']:
             filters &= Q(status=str(filter_params['status']).upper())
         if filter_params['fridge_id']:
-            filters &= Q(orderproduct__fridge_product__fridge__account=filter_params['fridge_id'])
+            filters &= Q(orderproduct__fridge_product__fridge__account__in=filter_params['fridge_id'])
         if filter_params['product_id']:
-            filters &= Q(orderproduct__fridge_product__product__id=filter_params['product_id'])
+            filters &= Q(orderproduct__fridge_product__product__id__in=filter_params['product_id'])
 
         return queryset.filter(filters).distinct()
 

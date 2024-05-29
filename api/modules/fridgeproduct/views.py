@@ -1,4 +1,5 @@
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter, extend_schema_view
 from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
@@ -10,7 +11,6 @@ from django.db.models import Q
 from django.db import transaction
 
 from api.utils import get_data
-from api.models import FridgeProduct, CourierFridgePermission
 from api.permissions import *
 from api.modules.fridgeproduct.services import create_or_update_instances
 from api.modules.fridgeproduct.serializers import (
@@ -20,6 +20,52 @@ from api.modules.fridgeproduct.serializers import (
 )
 
 
+@extend_schema_view(
+    list=extend_schema(
+        tags=['Fridge Product Admin'],
+        parameters=[
+            OpenApiParameter(name='min_price', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY,
+                             required=False, description='Minimum price'),
+            OpenApiParameter(name='max_price', type=OpenApiTypes.INT, location=OpenApiParameter.QUERY,
+                             required=False, description='Maximum price'),
+            OpenApiParameter(name='fridge_account', type=OpenApiTypes.STR, location=OpenApiParameter.QUERY,
+                             required=False, description='Fridge account')
+        ],
+        description="List all fridge products with optional filters for price and fridge account",
+        responses={200: FridgeProductListSerializer(many=True)}
+    ),
+    retrieve=extend_schema(
+        tags=['Fridge Product Admin'],
+        description="Retrieve details of a specific fridge product",
+        responses={200: FridgeProductCoverSerializer}
+    ),
+    create=extend_schema(
+        tags=['Fridge Product Admin'],
+        description="Create a new fridge product",
+        responses={201: FridgeProductSerializer}
+    ),
+    update=extend_schema(
+        tags=['Fridge Product Admin'],
+        description="Update an existing fridge product",
+        responses={200: FridgeProductSerializer}
+    ),
+    partial_update=extend_schema(
+        tags=['Fridge Product Admin'],
+        description="Partially update an existing fridge product",
+        responses={200: FridgeProductSerializer}
+    ),
+    destroy=extend_schema(
+        tags=['Fridge Product Admin'],
+        description="Delete a fridge product",
+        responses={204: None}
+    ),
+    create_update=extend_schema(
+        tags=['Fridge Product Admin'],
+        description="Create or update multiple fridge products",
+        request=FridgeProductSerializer(many=True),
+        responses={200: FridgeProductSerializer(many=True)}
+    )
+)
 class FridgeProductAdminModelViewSet(ModelViewSet):
     serializer_class = FridgeProductSerializer
     filter_backends = [OrderingFilter, SearchFilter]
@@ -96,19 +142,3 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
                 return Response(data=fridge_products_serialized_data, status=status.HTTP_200_OK)
         except Exception as exception:
             return Response(data={'message': str(exception)}, status=status.HTTP_400_BAD_REQUEST)
-
-    @extend_schema(
-        responses=FridgeProductListSerializer,
-        parameters=[
-            OpenApiParameter(name='min_price', description='filter min price', required=True, type=int),
-            OpenApiParameter(name='max_price', description='filter max price', required=True, type=int),
-            OpenApiParameter(name='fridge', description='fridge id', required=True, type=int)
-        ])
-    def list(self, request, *args, **kwargs):
-        return super().list(request, *args, **kwargs)
-
-    @extend_schema(
-        responses=FridgeProductCoverSerializer
-    )
-    def retrieve(self, request, *args, **kwargs):
-        return super().retrieve(request, *args, **kwargs)

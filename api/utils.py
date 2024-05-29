@@ -26,9 +26,3 @@ def get_data(data, key, fields):
                        "fields.")
     return data_list
 
-
-def get_data_without_fields(data, key):
-    if key not in data:
-        raise NotFound(f"'{key}' are required.")
-
-    return data.get(key)

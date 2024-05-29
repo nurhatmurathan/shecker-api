@@ -1,3 +1,4 @@
+from drf_spectacular.utils import extend_schema_view, extend_schema
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 
@@ -9,6 +10,38 @@ from api.modules.product.serializers import (
 )
 
 
+@extend_schema_view(
+    list=extend_schema(
+        tags=['Product Admin'],
+        description="List all products",
+        responses={200: ProductCoverSerializer(many=True)}
+    ),
+    retrieve=extend_schema(
+        tags=['Product Admin'],
+        description="Retrieve details of a specific product",
+        responses={200: ProductSerializer}
+    ),
+    create=extend_schema(
+        tags=['Product Admin'],
+        description="Create a new product",
+        responses={201: ProductSerializer}
+    ),
+    update=extend_schema(
+        tags=['Product Admin'],
+        description="Update an existing product",
+        responses={200: ProductSerializer}
+    ),
+    partial_update=extend_schema(
+        tags=['Product Admin'],
+        description="Partially update an existing product",
+        responses={200: ProductSerializer}
+    ),
+    destroy=extend_schema(
+        tags=['Product Admin'],
+        description="Delete a product",
+        responses={204: None}
+    )
+)
 class ProductAdminModelViewSet(ModelViewSet):
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
