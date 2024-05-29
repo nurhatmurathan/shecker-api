@@ -2,7 +2,7 @@ from rest_framework import generics
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
 
-from api.models import FridgeProduct
+from api.models import FridgeProduct, Fridge, CourierFridgePermission
 from api.permissions import *
 from api.modules.fridge.serializers import (
     FridgeSerializer,
@@ -39,16 +39,21 @@ class FridgeAdminModelViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return FridgeAdminCoverSerializer
-
         return super().get_serializer_class()
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated]
 
         if self.action in ['list', 'retrieve']:
-            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwner | IsStaffReadOnly]
-        elif self.action in ['create', 'update', 'partial_update', 'destroy']:
-            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwner]
+            permission_classes += [
+                IsSuperAdmin |
+                IsLocalAdminOfFridge |
+                IsStaffReadOnly
+            ]
+        elif self.action in ['update', 'partial_update']:
+            permission_classes += [IsSuperAdmin | IsLocalAdminOfFridge]
+        elif self.action in ['create', 'destroy']:
+            permission_classes += [IsSuperAdmin]
 
         return [permission() for permission in permission_classes]
 

@@ -3,13 +3,17 @@ from rest_framework.views import APIView
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from django.db import transaction
 
 from api.models import Order
+from api.permissions import IsSuperAdmin
+from api.paginations import OrderAdminPagination
 from api.utils import get_data
 from api.modules.order import services
-from api.modules.order.serializers import OrderDetailSerializer, OrderSerializer, BasketSerializer
+from api.modules.order.serializers import OrderDetailSerializer, OrderSerializer, BasketSerializer, \
+    OrderAdminCoverSerializer, OrderAdminListSerializer
 
 
 class OrderAPIView(APIView):
@@ -35,3 +39,17 @@ class OrderDetailView(generics.RetrieveAPIView):
     queryset = Order.objects.all()
     serializer_class = OrderDetailSerializer
     lookup_field = 'pk'
+
+
+class OrderAdminReadonlyModelViewSet(ReadOnlyModelViewSet):
+    permission_classes = [IsSuperAdmin]
+    queryset = Order.objects.all().order_by('date')
+    serializer_class = OrderAdminListSerializer
+    pagination_class = OrderAdminPagination
+
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            return OrderAdminCoverSerializer
+
+        return super().get_serializer_class()
+

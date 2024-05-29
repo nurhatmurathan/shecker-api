@@ -81,6 +81,10 @@ class Order(models.Model):
 
         return total_sum
 
+    def calculate_product_quantity(self) -> int:
+        order_products = self.orderproduct_set.all()
+        return len(order_products)
+
 
 class OrderProduct(models.Model):
     fridge_product = models.ForeignKey(FridgeProduct, on_delete=models.PROTECT)

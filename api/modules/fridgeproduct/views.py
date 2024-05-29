@@ -10,7 +10,7 @@ from django.db.models import Q
 from django.db import transaction
 
 from api.utils import get_data
-from api.models import FridgeProduct
+from api.models import FridgeProduct, CourierFridgePermission
 from api.permissions import *
 from api.modules.fridgeproduct.services import create_or_update_instances
 from api.modules.fridgeproduct.serializers import (
@@ -26,13 +26,28 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
     ordering_fields = ['quantity', 'product__price']
     search_fields = ['product__name', 'product__description']
 
+    def get_serializer_class(self):
+        if self.action == 'list':
+            return FridgeProductListSerializer
+        elif self.action == 'retrieve':
+            return FridgeProductCoverSerializer
+
+        return super().get_serializer_class()
+
     def get_permissions(self):
         permission_classes = [IsAuthenticated]
 
         if self.action in ['list', 'retrieve', 'create', 'update', 'partial_update']:
-            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwnerForFridgeProduct ]#| IsStaffUserFridgeCourier]
+            permission_classes += [
+                IsSuperAdmin |
+                IsLocalAdminOfFridgeOwnerForFridgeProduct |
+                IsStaffUserFridgeCourierForFridgeProduct
+            ]
         elif self.action == 'destroy':
-            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwnerForFridgeProduct]
+            permission_classes += [
+                IsSuperAdmin |
+                IsLocalAdminOfFridgeOwnerForFridgeProduct
+            ]
 
         return [permission() for permission in permission_classes]
 
@@ -45,13 +60,12 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
             'fridge': self.request.query_params.get("fridge"),
         }
 
-        queryset = FridgeProduct.objects.select_related('product')
-
-        if user.is_local_admin:
-            return queryset.filter(fridge__owner=user)
-        elif user.is_staff:
+        queryset = FridgeProduct.objects.select_related('product').all()
+        if not user.is_superuser and user.is_local_admin:
+            queryset = queryset.filter(fridge__owner=user)
+        elif not user.is_superuser and user.is_staff:
             permitted_fridge_ids = CourierFridgePermission.objects.filter(user=user).values_list('fridge_id', flat=True)
-            return queryset.filter(fridge_id__in=permitted_fridge_ids)
+            queryset = queryset.filter(fridge_id__in=permitted_fridge_ids)
 
         filters = Q()
         if filter_params['min_price']:
@@ -63,15 +77,14 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
 
         return queryset.filter(filters)
 
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return FridgeProductListSerializer
-        elif self.action == 'retrieve':
-            return FridgeProductCoverSerializer
-
-        return super().get_serializer_class()
-
-    @action(methods=['post'], detail=False, url_path='create-update')
+    @action(methods=['post'], detail=False,
+            url_path='create-update',
+            permission_classes=[
+                                IsSuperAdmin,
+                                IsStaffUserFridgeCourierForFridgeProduct,
+                                IsLocalAdminOfFridgeOwnerForFridgeProduct
+                            ]
+            )
     def create_update(self, request):
         request = self.request
 
