@@ -1,8 +1,10 @@
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema_view, extend_schema, OpenApiParameter
 from rest_framework import generics
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 from rest_framework.permissions import IsAuthenticated
 
-from api.models import FridgeProduct
+from api.models import FridgeProduct, Fridge, CourierFridgePermission
 from api.permissions import *
 from api.modules.fridge.serializers import (
     FridgeSerializer,
@@ -13,6 +15,16 @@ from api.modules.fridge.serializers import (
 )
 
 
+@extend_schema_view(
+    list=extend_schema(
+        tags=['Fridge'],
+        parameters=[
+            OpenApiParameter(name='account', type=OpenApiTypes.STR, location=OpenApiParameter.PATH, description='Fridge account'),
+        ],
+        description="List all products in a specific fridge",
+        responses={200: FridgeProductCoverSerializer(many=True)}
+    )
+)
 class FridgeProductsListAPIView(generics.ListAPIView):
     serializer_class = FridgeProductCoverSerializer
 
@@ -21,6 +33,18 @@ class FridgeProductsListAPIView(generics.ListAPIView):
         return FridgeProduct.objects.filter(fridge__account=fridge_account)
 
 
+@extend_schema_view(
+    list=extend_schema(
+        tags=['Fridge'],
+        description="List all fridges",
+        responses={200: FridgeListSerializer(many=True)}
+    ),
+    retrieve=extend_schema(
+        tags=['Fridge'],
+        description="Retrieve details of a specific fridge",
+        responses={200: FridgeSerializer}
+    )
+)
 class FridgeReadOnlyModelViewSet(ReadOnlyModelViewSet):
     queryset = Fridge.objects.all()
     serializer_class = FridgeListSerializer
@@ -32,6 +56,38 @@ class FridgeReadOnlyModelViewSet(ReadOnlyModelViewSet):
         return super().get_serializer_class()
 
 
+@extend_schema_view(
+    list=extend_schema(
+        tags=['Fridge Admin'],
+        description="List all fridges with admin access",
+        responses={200: FridgeAdminSerializer(many=True)}
+    ),
+    retrieve=extend_schema(
+        tags=['Fridge Admin'],
+        description="Retrieve details of a specific fridge with admin access",
+        responses={200: FridgeAdminCoverSerializer}
+    ),
+    create=extend_schema(
+        tags=['Fridge Admin'],
+        description="Create a new fridge",
+        responses={201: FridgeAdminSerializer}
+    ),
+    update=extend_schema(
+        tags=['Fridge Admin'],
+        description="Update an existing fridge",
+        responses={200: FridgeAdminSerializer}
+    ),
+    partial_update=extend_schema(
+        tags=['Fridge Admin'],
+        description="Partially update an existing fridge",
+        responses={200: FridgeAdminSerializer}
+    ),
+    destroy=extend_schema(
+        tags=['Fridge Admin'],
+        description="Delete a fridge",
+        responses={204: None}
+    )
+)
 class FridgeAdminModelViewSet(ModelViewSet):
     queryset = Fridge.objects.all()
     serializer_class = FridgeAdminSerializer
@@ -39,16 +95,21 @@ class FridgeAdminModelViewSet(ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return FridgeAdminCoverSerializer
-
         return super().get_serializer_class()
 
     def get_permissions(self):
         permission_classes = [IsAuthenticated]
 
         if self.action in ['list', 'retrieve']:
-            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwner | IsStaffReadOnly]
-        elif self.action in ['create', 'update', 'partial_update', 'destroy']:
-            permission_classes = [IsSuperAdmin | IsLocalAdminFridgeOwner]
+            permission_classes += [
+                IsSuperAdmin |
+                IsLocalAdminOfFridge |
+                IsStaffReadOnly
+            ]
+        elif self.action in ['update', 'partial_update']:
+            permission_classes += [IsSuperAdmin | IsLocalAdminOfFridge]
+        elif self.action in ['create', 'destroy']:
+            permission_classes += [IsSuperAdmin]
 
         return [permission() for permission in permission_classes]
 

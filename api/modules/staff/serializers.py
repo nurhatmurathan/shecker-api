@@ -13,3 +13,11 @@ class StaffSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'email', 'date_joined']
 
 
+class BindFridgeToLocalAdminRequestSerializer(serializers.Serializer):
+    local_admin_id = serializers.IntegerField()
+    fridges = serializers.ListField(
+        child=serializers.IntegerField(),
+        allow_empty=False
+    )
+
+
