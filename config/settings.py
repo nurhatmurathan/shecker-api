@@ -105,13 +105,13 @@ DATABASES = {
         'USER': os.getenv("DB_USER"),
         'PASSWORD': os.getenv("DB_PASS"),
     },
-    # 'nurha': {
-    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
-    #     'HOST': "localhost",
-    #     'NAME': os.getenv("DB_NAME"),
-    #     'USER': "nurha",
-    #     'PASSWORD': "8996",
-    # }
+    'nurha': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'HOST': "localhost",
+        'NAME': os.getenv("DB_NAME"),
+        'USER': "nurha",
+        'PASSWORD': "8996",
+    }
 }
 
 # Password validation
@@ -166,10 +166,11 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
-CORS_ORIGIN_ALLOW_ALL = True
-# CORS_ORIGIN_WHITELIST = (
-#   'http://localhost:8000',
-# )
+CORS_ALLOW_ALL_ORIGINS = True
+
+# CORS_ALLOWED_ORIGINS = [
+#     "http://localhost:3030",
+# ]
 
 CSRF_TRUSTED_ORIGINS = [
     'https://shecker-admin.com',

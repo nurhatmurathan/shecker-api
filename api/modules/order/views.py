@@ -76,7 +76,7 @@ class OrderDetailView(generics.RetrieveAPIView):
 class OrderAdminReadonlyModelViewSet(ReadOnlyModelViewSet):
     permission_classes = [IsSuperAdmin]
     serializer_class = OrderAdminListSerializer
-    pagination_class = OrderAdminPagination
+    # pagination_class = OrderAdminPagination
 
     def get_serializer_class(self):
         if self.action == 'retrieve':
