@@ -118,7 +118,7 @@ class FridgeProductAdminModelViewSet(ModelViewSet):
             filters &= Q(price__gte=int(filter_params['min_price']))
         if filter_params['max_price']:
             filters &= Q(price__lte=int(filter_params['max_price']))
-        if filter_params['fridge']:
+        if filter_params['fridge_account']:
             filters &= Q(fridge__account=int(filter_params['fridge_account']))
 
         return queryset.filter(filters).distinct()
