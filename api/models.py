@@ -36,7 +36,7 @@ class Product(models.Model):
 
 
 class FridgeProduct(models.Model):
-    fridge = models.ForeignKey(Fridge, on_delete=models.PROTECT)
+    fridge = models.ForeignKey(Fridge, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(default=0)
 
@@ -87,7 +87,7 @@ class Order(models.Model):
 
 
 class OrderProduct(models.Model):
-    fridge_product = models.ForeignKey(FridgeProduct, on_delete=models.PROTECT)
+    fridge_product = models.ForeignKey(FridgeProduct, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.PROTECT)
     amount = models.PositiveIntegerField()
 
