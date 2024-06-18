@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-
+from django.utils import timezone
 
 class CustomUser(AbstractUser):
     company = models.CharField(null=True, blank=True, max_length=255)
@@ -48,7 +48,10 @@ class FridgeProduct(models.Model):
 
     def reduce_quantity(self, amount):
         self.quantity -= amount
-        self.save()
+        if self.quantity <= 0:
+            self.delete()
+        else:
+            self.save()
 
 
 class Order(models.Model):
@@ -116,3 +119,13 @@ class Transaction(models.Model):
         self.pay_txn_id = pay_txn_id
         self.txn_date = txn_date
         self.save()
+
+
+class Token(models.Model):
+    email = models.EmailField(max_length=255)
+    code = models.CharField(max_length=6, unique=True)
+    token = models.CharField(max_length=55, unique=True, default=None, blank=True, null=True)
+    expiration_date = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f"{self.email} - {self.token}"

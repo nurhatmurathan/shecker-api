@@ -38,3 +38,16 @@ class UserCreateSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+
+class VerifyEmailSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(
+        validators=[UniqueValidator(
+            queryset=CustomUser.objects.all(),
+            message="This email address is already in use. Please use a different email."
+        )]
+    )
+
+    class Meta:
+        model = CustomUser
+        fields = ['email']
