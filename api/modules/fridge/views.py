@@ -30,19 +30,19 @@ class FridgeProductsListAPIView(generics.ListAPIView):
 
     def get_queryset(self):
         fridge_account = self.kwargs.get('account')
-        return FridgeProduct.objects.filter(fridge__account=fridge_account)
+        return FridgeProduct.objects.filter(fridge__account=fridge_account, quantity__gt=0)
 
 
 @extend_schema_view(
-    list=extend_schema(
-        tags=['Fridge'],
-        description="List all fridges",
-        responses={200: FridgeListSerializer(many=True)}
-    ),
     retrieve=extend_schema(
         tags=['Fridge'],
         description="Retrieve details of a specific fridge",
         responses={200: FridgeSerializer}
+    ),
+    list=extend_schema(
+        tags=['Fridge'],
+        description="List all fridges",
+        responses={200: FridgeListSerializer(many=True)}
     )
 )
 class FridgeReadOnlyModelViewSet(ReadOnlyModelViewSet):
@@ -52,7 +52,6 @@ class FridgeReadOnlyModelViewSet(ReadOnlyModelViewSet):
     def get_serializer_class(self):
         if self.action == 'retrieve':
             return FridgeSerializer
-
         return super().get_serializer_class()
 
 

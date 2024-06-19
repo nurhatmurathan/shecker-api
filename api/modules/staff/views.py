@@ -15,6 +15,21 @@ from api.permissions import IsSuperAdmin
 from api.modules.staff import service
 
 
+@extend_schema_view(
+    list=extend_schema(
+        tags=['Staff Admin'],
+        parameters=[
+            OpenApiParameter(name='is_staff', description='Filter by staff status', required=False, type=str),
+            OpenApiParameter(name='is_local_admin', description='Filter by local admin status', required=False, type=str),
+        ],
+        responses={
+            200: StaffSerializer(many=True),
+            403: OpenApiParameter(description='Forbidden', name="No super user permission"),
+        },
+        summary="List staff members",
+        description="This endpoint allows super admins to list staff members with optional filters for staff and local admin status."
+    )
+)
 class StaffListAPIView(ListModelMixin, GenericAPIView):
     permission_classes = [IsSuperAdmin]
     serializer_class = StaffSerializer
@@ -35,20 +50,6 @@ class StaffListAPIView(ListModelMixin, GenericAPIView):
             queryset = queryset.filter(Q(is_staff=is_staff) | Q(is_local_admin=is_local_admin))
 
         return queryset
-
-    @extend_schema(
-        tags=['Staff Admin'],
-        parameters=[
-            OpenApiParameter(name='is_staff', description='Filter by staff users',
-                             required=False, type=OpenApiTypes.BOOL, default=True),
-            OpenApiParameter(name='is_local_admin', description='Filter by local admin users',
-                             required=False, type=OpenApiTypes.BOOL, default=True),
-        ],
-        description="Retrieve a list of staff and local admin users",
-        responses={200: StaffSerializer(many=True)}
-    )
-    def get(self, request, *args, **kwargs):
-        return self.list(request, *args, **kwargs)
 
 
 @extend_schema_view(

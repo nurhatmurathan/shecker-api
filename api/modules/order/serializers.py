@@ -3,6 +3,7 @@ from rest_framework import serializers
 from api.models import OrderProduct, Order
 from api.modules.product.serializers import ProductSerializer
 
+
 class OrderProductCoverSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
@@ -11,10 +12,10 @@ class OrderProductCoverSerializer(serializers.ModelSerializer):
         model = OrderProduct
         fields = ['name', 'price', 'amount']
 
-    def get_name(self, obj):
+    def get_name(self, obj) -> str:
         return obj.fridge_product.product.name
 
-    def get_price(self, obj):
+    def get_price(self, obj) -> int:
         return obj.fridge_product.product.price
 
 
@@ -32,10 +33,10 @@ class OrderSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['account', 'sum', 'date']
 
-    def get_account(self, obj):
+    def get_account(self, obj) -> int:
         return obj.id
 
-    def get_sum(self, obj):
+    def get_sum(self, obj) -> int:
         return obj.calculate_total_sum()
 
 
@@ -46,7 +47,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
         model = Order
         fields = ['id', 'status', 'fridge_id', 'date']
 
-    def get_fridge_id(self, obj):
+    def get_fridge_id(self, obj) -> str | None:
         order_products = obj.orderproduct_set.all()
         if order_products.exists():
             return order_products.first().fridge_product.fridge.account
@@ -72,25 +73,25 @@ class OrderAdminCoverSerializer(serializers.ModelSerializer):
         fields = ['id', 'total_sum', 'total_quantity',
                   'status', 'date', 'order_products']
 
-    def get_total_sum(self, obj):
+    def get_total_sum(self, obj) -> int:
         return obj.calculate_total_sum()
 
-    def get_total_quantity(self, obj):
+    def get_total_quantity(self, obj) -> int:
         return obj.calculate_product_quantity()
 
 
 class OrderAdminListSerializer(serializers.ModelSerializer):
-    sum = serializers.SerializerMethodField()
-    quantity = serializers.SerializerMethodField()
+    total_sum = serializers.SerializerMethodField()
+    total_quantity = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = ['id', 'sum', 'quantity', 'status', 'date']
+        fields = ['id', 'total_sum', 'total_quantity', 'status', 'date']
 
-    def get_sum(self, obj):
+    def get_total_sum(self, obj) -> int:
         return obj.calculate_total_sum()
 
-    def get_quantity(self, obj):
+    def get_total_quantity(self, obj) -> int:
         return obj.calculate_product_quantity()
 
 

@@ -25,4 +25,4 @@ class FridgeProductCoverSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FridgeProduct
-        fields = ['id', 'quantity', 'product']
+        fields = ['id', 'quantity', 'updated_at', 'product']

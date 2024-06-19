@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils import timezone
 
+
 class CustomUser(AbstractUser):
     company = models.CharField(null=True, blank=True, max_length=255)
     is_local_admin = models.BooleanField(default=False)
@@ -39,6 +40,7 @@ class FridgeProduct(models.Model):
     fridge = models.ForeignKey(Fridge, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.PositiveIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
         unique_together = [['fridge', 'product']]
@@ -48,10 +50,7 @@ class FridgeProduct(models.Model):
 
     def reduce_quantity(self, amount):
         self.quantity -= amount
-        if self.quantity <= 0:
-            self.delete()
-        else:
-            self.save()
+        self.save()
 
 
 class Order(models.Model):

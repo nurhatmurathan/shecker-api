@@ -68,7 +68,7 @@ class OrderDetailView(generics.RetrieveAPIView):
         responses={200: OrderAdminListSerializer(many=True)}
     ),
     retrieve=extend_schema(
-        tags=['Fridge'],
+        tags=['Order Admin'],
         description="Retrieve a specific order by ID",
         responses={200: OrderAdminCoverSerializer}
     )

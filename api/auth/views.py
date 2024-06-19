@@ -31,7 +31,7 @@ TokenVerifyAPIView = extend_schema_view(
     summary="Create a new user. Version 1",
     description="This endpoint allows you to create a new user. You need to provide the necessary user details.",
     request=UserCreateSerializer,
-    responses={201: UserCreateSerializer, 400: "Bad Request"},
+    responses={201: UserCreateSerializer},
 )
 class UserCreateAPIView(CreateAPIView):
     queryset = CustomUser.objects.all()
