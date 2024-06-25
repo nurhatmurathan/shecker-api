@@ -85,7 +85,7 @@ class OrderAdminReadonlyModelViewSet(ReadOnlyModelViewSet):
         return super().get_serializer_class()
 
     def get_queryset(self):
-        queryset = Order.objects.all().order_by('date')
+        queryset = Order.objects.all().order_by('-date')
 
         filter_params = {
             'fridge_id': self.request.query_params.getlist('fridge_id', None),
