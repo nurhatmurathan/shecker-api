@@ -5,7 +5,7 @@ WORKDIR /app
 ARG SECRET_KEY
 ENV SECRET_KEY=${SECRET_KEY}
 ENV PROD=True
-ENV DEBUG=False
+#ENV DEBUG=False
 
 COPY requirements.txt .
 
