@@ -45,7 +45,7 @@ def is_transaction_expired(transaction) -> bool:
 
     time_difference = current_date_utc - transaction.expiration_time.replace(tzinfo=None)
 
-    return time_difference > timedelta(seconds=30)
+    return time_difference > timedelta(minutes=1)
 
 
 def get_transaction_expired_exception_response():
