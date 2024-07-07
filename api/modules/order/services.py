@@ -66,7 +66,7 @@ def set_order_date(order, date):
     order.set_date(date)
 
 
-def handle_status_of_order(order: Order, command):
+def get_status_of_order_response(order: Order, command):
     if (command == "check" and order.status in (Order.Status.PENDING, Order.Status.CHECKED)) or \
             (command == "pay" and order.status == Order.Status.CHECKED):
         return {
@@ -101,14 +101,14 @@ def handle_status_of_order(order: Order, command):
     return order_status_error_msg.get(order.status, other_error)
 
 
-def handle_order_not_found_exception():
+def get_order_not_found_exception_response():
     return {
         'result': 2,
         'comment': 'The order not found.'
     }
 
 
-def handle_incorrect_total_price_exception(order):
+def get_incorrect_total_price_exception_response(order):
     return {
         'result': 5,
         'comment': 'Total price incorrect.'
@@ -129,7 +129,7 @@ def is_order_expired(order) -> bool:
     return time_difference > timedelta(minutes=1)
 
 
-def handle_order_expired_exception():
+def get_order_expired_exception_response():
     return {
         'result': 2,
         'comment': 'Time is up, order canceled.'
