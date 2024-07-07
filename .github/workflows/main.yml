@@ -55,4 +55,4 @@ jobs:
           --allow-unauthenticated \
           --port=8000 \
           --min-instances=1 \
-          --max-instances=10 
+          --max-instances=10
